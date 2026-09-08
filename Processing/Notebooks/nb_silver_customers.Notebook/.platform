@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_silver_customers",
+    "description": "Criar tabela silver de clientes a partir das tabelas bronze de clientes e endereços"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "239a5f81-e2a4-8045-45ec-40d3d29c5e84"
+  }
+}

@@ -1,0 +1,109 @@
+table DimDate
+	lineageTag: 1ed4b19d-838a-49ea-928e-f42876e9e4b7
+	sourceLineageTag: [dbo].[DimDate]
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: General Date
+		lineageTag: 31d35e07-c1e7-479e-a8d9-2ea92ac3978b
+		sourceLineageTag: Date
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: 5e02aaea-b451-4654-9ba0-80f36772a006
+		sourceLineageTag: Ano
+		summarizeBy: none
+		sourceColumn: Ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column Trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 9f4cb186-6fbe-4d9d-a1ed-dfaa8d0b5efb
+		sourceLineageTag: Trimestre
+		summarizeBy: none
+		sourceColumn: Trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterName
+		dataType: string
+		lineageTag: 87d266ab-71bc-4002-a3f8-c3ae3b261337
+		sourceLineageTag: QuarterName
+		summarizeBy: none
+		sourceColumn: QuarterName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mês
+		dataType: int64
+		formatString: 0
+		lineageTag: 5df7e1ba-4880-47da-a502-4f958aa39aae
+		sourceLineageTag: Mês
+		summarizeBy: none
+		sourceColumn: Mês
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome do mês'
+		dataType: string
+		lineageTag: 16d29935-3e96-4762-898a-bf04bfc658eb
+		sourceLineageTag: Nome do mês
+		summarizeBy: none
+		sourceColumn: Nome do mês
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Mês abrev'
+		dataType: string
+		lineageTag: acb593f6-f0a1-4b3a-b2f9-4e1f316d2683
+		sourceLineageTag: Mês abrev
+		summarizeBy: none
+		sourceColumn: Mês abrev
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dia
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ae87335-3b1f-470e-aca5-f6e5b56ac3df
+		sourceLineageTag: Dia
+		summarizeBy: none
+		sourceColumn: Dia
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dia da semana'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5910346f-f53d-4147-9912-9c2edb9abc57
+		sourceLineageTag: Dia da semana
+		summarizeBy: none
+		sourceColumn: Dia da semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome do dia'
+		dataType: string
+		lineageTag: 0e2f0990-642b-494a-845b-1926b03ea1c3
+		sourceLineageTag: Nome do dia
+		summarizeBy: none
+		sourceColumn: Nome do dia
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = entity
+		mode: directLake
+		source
+			entityName: DimDate
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

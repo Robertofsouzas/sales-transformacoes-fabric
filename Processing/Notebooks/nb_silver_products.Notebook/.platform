@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_silver_products",
+    "description": "criar tabela  silver de produtos a partir das tabelas bronzes de produtos, categoria modelo e descrição"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "91afb615-ba0a-a32c-4c1d-fc8a72f5fad1"
+  }
+}

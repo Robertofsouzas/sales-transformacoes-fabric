@@ -1,0 +1,296 @@
+table FactSales
+	lineageTag: a4731b49-ee00-4970-8f01-2d104a544e9e
+	sourceLineageTag: [dbo].[FactSales]
+
+	column SalesOrderID
+		dataType: int64
+		formatString: 0
+		lineageTag: 8dd6f3e2-1676-42aa-a816-acb815883da0
+		sourceLineageTag: SalesOrderID
+		summarizeBy: none
+		sourceColumn: SalesOrderID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesOrderDetailID
+		dataType: int64
+		formatString: 0
+		lineageTag: 7d1b9ea0-636f-47e2-b14f-a19cba7ad9ec
+		sourceLineageTag: SalesOrderDetailID
+		summarizeBy: none
+		sourceColumn: SalesOrderDetailID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductID
+		dataType: int64
+		formatString: 0
+		lineageTag: 072dc97b-7a10-473b-a263-3249010287ed
+		sourceLineageTag: ProductID
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerID
+		dataType: int64
+		formatString: 0
+		lineageTag: 14ce1273-3633-4332-9341-1a1295761d52
+		sourceLineageTag: CustomerID
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipToAddressID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 19c062d4-0446-41c4-8877-b81061a2c09e
+		sourceLineageTag: ShipToAddressID
+		summarizeBy: count
+		sourceColumn: ShipToAddressID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillToAddressID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ac07cdc7-8564-4126-8792-17f50d9213f4
+		sourceLineageTag: BillToAddressID
+		summarizeBy: none
+		sourceColumn: BillToAddressID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1032df92-76ae-47ae-b6f1-3c6280e226e4
+		sourceLineageTag: OrderDate
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column DueDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7c001d12-dabb-4d63-90c0-0dd758ba639c
+		sourceLineageTag: DueDate
+		summarizeBy: none
+		sourceColumn: DueDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 4908c055-a07e-4e21-af36-1b5192e04905
+		sourceLineageTag: ShipDate
+		summarizeBy: none
+		sourceColumn: ShipDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesOrderNumber
+		dataType: string
+		lineageTag: 042a2644-476a-4ece-9965-e90fe4de8594
+		sourceLineageTag: SalesOrderNumber
+		summarizeBy: none
+		sourceColumn: SalesOrderNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column PurchaseOrderNumber
+		dataType: string
+		lineageTag: c28418b4-3847-4cfd-b14f-64d0109cc22e
+		sourceLineageTag: PurchaseOrderNumber
+		summarizeBy: none
+		sourceColumn: PurchaseOrderNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountNumber
+		dataType: string
+		lineageTag: 35c746f5-bb8c-4fcb-8b6b-3880bea93c9d
+		sourceLineageTag: AccountNumber
+		summarizeBy: none
+		sourceColumn: AccountNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderQty
+		dataType: int64
+		formatString: 0
+		lineageTag: 849c00ae-37aa-40b6-95de-82c80901963d
+		sourceLineageTag: OrderQty
+		summarizeBy: sum
+		sourceColumn: OrderQty
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: double
+		lineageTag: f16a5e59-9080-4598-b76f-57cc0210d16b
+		sourceLineageTag: UnitPrice
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UnitPriceDiscount
+		dataType: double
+		lineageTag: d0e4ef89-aa90-4763-974d-af264eebc228
+		sourceLineageTag: UnitPriceDiscount
+		summarizeBy: sum
+		sourceColumn: UnitPriceDiscount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LineTotal
+		dataType: double
+		lineageTag: fd7c2108-c097-4f31-aeda-791694fcac42
+		sourceLineageTag: LineTotal
+		summarizeBy: sum
+		sourceColumn: LineTotal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SubTotal
+		dataType: double
+		isHidden
+		lineageTag: f000570b-fb99-40c5-a244-f8dd4e54f939
+		sourceLineageTag: SubTotal
+		summarizeBy: sum
+		sourceColumn: SubTotal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TaxAmt
+		dataType: double
+		isHidden
+		lineageTag: bdbd038c-64f8-4825-aa86-138a9946910e
+		sourceLineageTag: TaxAmt
+		summarizeBy: sum
+		sourceColumn: TaxAmt
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Freight
+		dataType: double
+		isHidden
+		lineageTag: 963bed26-ee35-4ebc-864e-cc5997627be6
+		sourceLineageTag: Freight
+		summarizeBy: sum
+		sourceColumn: Freight
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TotalDue
+		dataType: double
+		isHidden
+		lineageTag: 57703070-8aef-4653-b224-16cf20008aff
+		sourceLineageTag: TotalDue
+		summarizeBy: sum
+		sourceColumn: TotalDue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SubTotalRatio
+		dataType: double
+		lineageTag: 3a0e30f4-131c-445f-bfcb-f32af87631fe
+		sourceLineageTag: SubTotalRatio
+		summarizeBy: sum
+		sourceColumn: SubTotalRatio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TaxAmtRatio
+		dataType: double
+		lineageTag: fb18d4cf-c5f6-4d45-835d-3fe22cd9d3e5
+		sourceLineageTag: TaxAmtRatio
+		summarizeBy: sum
+		sourceColumn: TaxAmtRatio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FreightRatio
+		dataType: double
+		isHidden
+		lineageTag: dd464fdb-99e1-4dbf-817c-f4c002319321
+		sourceLineageTag: FreightRatio
+		summarizeBy: sum
+		sourceColumn: FreightRatio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TotalDueRatio
+		dataType: double
+		lineageTag: 15d603db-18de-40e0-aaba-34bab626baff
+		sourceLineageTag: TotalDueRatio
+		summarizeBy: sum
+		sourceColumn: TotalDueRatio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ModifiedDate
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		lineageTag: 21825727-b26a-4104-b5d8-039508b848d0
+		sourceLineageTag: ModifiedDate
+		summarizeBy: none
+		sourceColumn: ModifiedDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column UpdatedDate
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		lineageTag: f37cbd48-81b1-4a00-b4ac-b859210190dc
+		sourceLineageTag: UpdatedDate
+		summarizeBy: none
+		sourceColumn: UpdatedDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactSales = entity
+		mode: directLake
+		source
+			entityName: FactSales
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

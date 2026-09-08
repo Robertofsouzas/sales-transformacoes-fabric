@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_delta_optimization"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "05a5595d-d1c0-8c5e-4ad3-1ca9c4273412"
+  }
+}

@@ -1,0 +1,22 @@
+relationship 2dfbaad0-fb51-b80c-2383-37feaf072ce0
+	fromColumn: FactSales.ProductID
+	toColumn: DimProducts.ProductID
+
+relationship ead604de-3775-66f0-803a-f13a0a166444
+	fromColumn: FactSales.CustomerID
+	toColumn: DimCustomers.CustomerID
+
+relationship 15ccf149-dc11-e2dd-98ea-317efc234fe2
+	fromColumn: FactSales.OrderDate
+	toColumn: DimDate.Date
+
+relationship ed00360a-c828-c3ca-b53a-dbdf8672096e
+	isActive: false
+	fromColumn: FactSales.DueDate
+	toColumn: DimDate.Date
+
+relationship b56febbd-c579-76c3-dbb1-96227f5afee5
+	isActive: false
+	fromColumn: FactSales.ShipDate
+	toColumn: DimDate.Date
+

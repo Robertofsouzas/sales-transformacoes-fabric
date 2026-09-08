@@ -1,0 +1,133 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderQuery": "SELECT * FROM dbo.PipelineControl \nWHERE PipelineLayer = 'Bronze' \n  AND IsActive = 1;",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "PipelineControl"
+            },
+            "schema": [],
+            "connectionSettings": {
+              "name": "db_control",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "c8baa827-97ed-b1d8-402b-e98d6a9fea9b",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Orquestrador",
+        "description": "Ler tabela  metadados de orquestração do pipeline referentes a camada bronze",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "ffe0d40f-ccc3-9c5e-40e2-35bb08113b7f",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "source_storage": {
+                    "value": {
+                      "value": "@item().SourceStorage",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_folder": {
+                    "value": {
+                      "value": "@item().sourceFolder",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_file": {
+                    "value": {
+                      "value": "@item().sourceFile",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_storage": {
+                    "value": {
+                      "value": "@item().TargetStorage",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_table": {
+                    "value": {
+                      "value": "@item().TargetTable",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_mode": {
+                    "value": {
+                      "value": "@item().TargetMode",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.00:10:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Bronze",
+              "description": "Lé os dados do arquivo parquet e cria a tabela na camada Bronze",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "Interador",
+        "description": "Iterar com os arquivos parquet da pasta staging para derecionar ao Notebook",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

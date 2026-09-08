@@ -1,0 +1,510 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "PipelineControl"
+            },
+            "schema": [],
+            "connectionSettings": {
+              "name": "db_control",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "c8baa827-97ed-b1d8-402b-e98d6a9fea9b",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Orquestrador",
+        "description": "Ler db_control com metadados de orquestração do pipeline referentes a camada silver",
+        "dependsOn": []
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@and(\n    equals(item().TargetTable, 'dim_entidades'),\n    equals(item().Flag, 1)\n)    ",
+            "type": "Expression"
+          }
+        },
+        "name": "Filtro Clientes",
+        "description": "Filtrar as informações referente a tabela cliente para o respectivo Notebook",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "239a5f81-e2a4-8045-45ec-40d3d29c5e84",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Clientes').output.value)['SourceStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "source_tables": {
+              "value": {
+                "value": "@first(activity('Filtro Clientes').output.value)['SourceTables']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Clientes').output.value)['TargetStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_table": {
+              "value": {
+                "value": "@first(activity('Filtro Clientes').output.value)['TargetTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_mode": {
+              "value": {
+                "value": "@first(activity('Filtro Clientes').output.value)['TargetMode']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_key": {
+              "value": {
+                "value": "@first(activity('Filtro Clientes').output.value)['TargetKey']",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": "SilverSession"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Nb Clientes",
+        "description": "Executa o Notebook de clientes na camada silver",
+        "dependsOn": [
+          {
+            "activity": "Filtro Clientes",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@and(\n    equals(item().TargetTable, 'dim_produtos'),\n    equals(item().Flag, 1)\n)    ",
+            "type": "Expression"
+          }
+        },
+        "name": "Filtro Produtos",
+        "description": "Filtrar as informações referente a tabela Produtos para o respectivo Notebook",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@and(\n    equals(item().TargetTable, 'fato_vendas'),\n    equals(item().Flag, 1)\n)    ",
+            "type": "Expression"
+          }
+        },
+        "name": "Filtro vendas",
+        "description": "Filtrar as informações referente a tabela Vendas para o respectivo Notebook",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "91afb615-ba0a-a32c-4c1d-fc8a72f5fad1",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Produtos').output.value)['SourceStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "source_tables": {
+              "value": {
+                "value": "@first(activity('Filtro Produtos').output.value)['SourceTables']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Produtos').output.value)['TargetStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_table": {
+              "value": {
+                "value": "@first(activity('Filtro Produtos').output.value)['TargetTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_mode": {
+              "value": {
+                "value": "@first(activity('Filtro Produtos').output.value)['TargetMode']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_key": {
+              "value": {
+                "value": "@first(activity('Filtro Produtos').output.value)['TargetKey']",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": "SilverSession"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Nb Produto",
+        "description": "Executa o Notebook de Produto na camada silver",
+        "dependsOn": [
+          {
+            "activity": "Filtro Produtos",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "dd2ba40a-de84-8249-4dea-81fa6aaef1b4",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_storage": {
+              "value": {
+                "value": "@first(activity('Filtro vendas').output.value)['SourceStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "source_tables": {
+              "value": {
+                "value": "@first(activity('Filtro vendas').output.value)['SourceTables']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_storage": {
+              "value": {
+                "value": "@first(activity('Filtro vendas').output.value)['TargetStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_table": {
+              "value": {
+                "value": "@first(activity('Filtro vendas').output.value)['TargetTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_mode": {
+              "value": {
+                "value": "@first(activity('Filtro vendas').output.value)['TargetMode']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_key": {
+              "value": {
+                "value": "@first(activity('Filtro vendas').output.value)['TargetKey']",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": "SilverSession"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Nb Vendas",
+        "description": "Executa o Notebook de Produto na camada silver",
+        "dependsOn": [
+          {
+            "activity": "Filtro vendas",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@and(\n    equals( item().TargetTable,'dim_empresas_usuarias'),\n    equals( item().Flag,0)\n) \n",
+            "type": "Expression"
+          }
+        },
+        "name": "Filtro Empresa",
+        "description": "Filtrar as informações referente a tabela company para o respectivo Notebook",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@and(\n    equals(item().TargetTable, 'dim_vendedores'),\n    equals(item().Flag, 1)\n)    ",
+            "type": "Expression"
+          }
+        },
+        "name": "Filtro Vendedor",
+        "description": "Filtrar as informações referente a tabela Vendedor para o respectivo Notebook",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "fa5e1122-0f0e-85f6-44fa-c80e2146a50f",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Empresa').output.value)['SourceStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "source_tables": {
+              "value": {
+                "value": "@first(activity('Filtro Empresa').output.value)['SourceTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Empresa').output.value)['TargetStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_table": {
+              "value": {
+                "value": "@first(activity('Filtro Empresa').output.value)['TargetTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_mode": {
+              "value": {
+                "value": "@first(activity('Filtro Empresa').output.value)['TargetMode']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_key": {
+              "value": {
+                "value": "@first(activity('Filtro Empresa').output.value)['TargetKey']",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": "SilverSession"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Nb Empresa",
+        "description": "Executa o Notebook de Empresa camada silver",
+        "dependsOn": [
+          {
+            "activity": "Filtro Empresa",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "8d151feb-f4a3-8d3f-4f34-17d6793b574c",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Vendedor').output.value)['SourceStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "source_tables": {
+              "value": {
+                "value": "@first(activity('Filtro Vendedor').output.value)['SourceTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_storage": {
+              "value": {
+                "value": "@first(activity('Filtro Vendedor').output.value)['TargetStorage']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_table": {
+              "value": {
+                "value": "@first(activity('Filtro Vendedor').output.value)['TargetTable']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_mode": {
+              "value": {
+                "value": "@first(activity('Filtro Vendedor').output.value)['TargetMode']",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "target_key": {
+              "value": {
+                "value": "@first(activity('Filtro Vendedor').output.value)['Targetkey']",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": "SilverSession"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Nb Vendedor",
+        "description": "Executa o Notebook de vendedor na camada silver",
+        "dependsOn": [
+          {
+            "activity": "Filtro Vendedor",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

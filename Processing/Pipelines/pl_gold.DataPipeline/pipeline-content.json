@@ -1,0 +1,132 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "05a5595d-d1c0-8c5e-4ad3-1ca9c4273412",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.00:30:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Nb Otimizacao",
+        "description": "Executa o Notebook de otimizações de tabelas Delta",
+        "dependsOn": []
+      },
+      {
+        "type": "PBISemanticModelRefresh",
+        "typeProperties": {
+          "method": "POST",
+          "groupId": "e32e58cc-a2bd-4639-8563-50a4a2bb4530",
+          "datasetId": "b5dbe033-768f-4707-aeba-2eb712c94e10",
+          "commitMode": "Transactional",
+          "waitOnCompletion": true,
+          "operationType": "SemanticModelRefresh"
+        },
+        "externalReferences": {
+          "connection": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Reframing Direct Lake",
+        "description": "Atualizar os metadados (Reframing) do modelo Direct Lake",
+        "dependsOn": [
+          {
+            "activity": "Nb Otimizacao",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "PBISemanticModelRefresh",
+        "typeProperties": {
+          "method": "POST",
+          "groupId": "e32e58cc-a2bd-4639-8563-50a4a2bb4530",
+          "datasetId": "b6e11cd6-115d-4d20-b640-b5522c2a2cc0",
+          "commitMode": "Transactional",
+          "objects": [
+            {
+              "table": "DimCustomers"
+            },
+            {
+              "table": "FactSales"
+            },
+            {
+              "table": "DimProducts"
+            }
+          ],
+          "waitOnCompletion": true,
+          "operationType": "SemanticModelRefresh"
+        },
+        "externalReferences": {
+          "connection": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Reframing Composite Model",
+        "description": "Atualizar os metadados (Reframing) do modelo Composite",
+        "dependsOn": [
+          {
+            "activity": "Nb Otimizacao",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "PBISemanticModelRefresh",
+        "typeProperties": {
+          "method": "POST",
+          "groupId": "e32e58cc-a2bd-4639-8563-50a4a2bb4530",
+          "datasetId": "b6e11cd6-115d-4d20-b640-b5522c2a2cc0",
+          "commitMode": "Transactional",
+          "objects": [
+            {
+              "table": "DimDate"
+            }
+          ],
+          "waitOnCompletion": true,
+          "operationType": "SemanticModelRefresh"
+        },
+        "externalReferences": {
+          "connection": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Refresh composite Model",
+        "description": "Atualiza os dados do Modelo Composite (Direct Lake + Import) nas tabelas import",
+        "dependsOn": [
+          {
+            "activity": "Reframing Composite Model",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

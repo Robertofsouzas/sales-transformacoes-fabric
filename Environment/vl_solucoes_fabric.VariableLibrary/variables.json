@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
+  "variables": [
+    {
+      "name": "cnn_sqlserver_adworks_dev",
+      "note": "Parâmetro de referência a conexão On-promise com SQL Server, no database AdventureWorksLT",
+      "type": "String",
+      "value": "c0ad4a20-c5c3-4698-8a38-20cedd58dd59"
+    }
+  ]
+}

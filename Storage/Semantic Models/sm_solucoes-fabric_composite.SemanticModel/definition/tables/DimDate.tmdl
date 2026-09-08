@@ -1,0 +1,106 @@
+table DimDate
+	lineageTag: 562d611a-eef2-494c-b531-e47f2e34ac77
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Short Date
+		lineageTag: c4d2b4f7-c1b7-4b47-908a-c6934005f0e9
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: c8561dc9-5976-4a1b-b9ba-3e8fe8a8eef2
+		summarizeBy: none
+		sourceColumn: Ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column Trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 8107b82d-72be-4637-95e2-c37593db0920
+		summarizeBy: none
+		sourceColumn: Trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterName
+		dataType: string
+		lineageTag: 60468b8a-15f1-48d7-889a-63a97e02a276
+		summarizeBy: none
+		sourceColumn: QuarterName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mês
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e5833d3-1faa-436c-b99f-fb58d1f5ed47
+		summarizeBy: none
+		sourceColumn: Mês
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome do mês'
+		dataType: string
+		lineageTag: faa436e3-634c-4a37-8c80-fde58765cc95
+		summarizeBy: none
+		sourceColumn: Nome do mês
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Mês abrev'
+		dataType: string
+		lineageTag: 259590a2-e443-4985-ab84-ef0cc39c68df
+		summarizeBy: none
+		sourceColumn: Mês abrev
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dia
+		dataType: int64
+		formatString: 0
+		lineageTag: 7dff1237-75c7-44ef-9bd5-27dfce821ee0
+		summarizeBy: none
+		sourceColumn: Dia
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dia da semana'
+		dataType: int64
+		formatString: 0
+		lineageTag: c141a16f-e8f2-44c8-b5d5-216aea212251
+		summarizeBy: none
+		sourceColumn: Dia da semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome do dia'
+		dataType: string
+		lineageTag: 76c1b55f-d32a-4ac3-81b8-2733e830b235
+		summarizeBy: none
+		sourceColumn: Nome do dia
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+				  Origem = Sql.Database(server,Database),
+				  Navigation = Origem{[Schema = "dbo", Item = "DimDate"]}[Data]
+				in
+				  Navigation
+
+	annotation PBI_ResultType = Table
+

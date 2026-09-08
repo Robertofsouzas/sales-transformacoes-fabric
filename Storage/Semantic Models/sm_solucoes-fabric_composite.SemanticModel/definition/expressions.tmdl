@@ -1,0 +1,28 @@
+expression 'DirectLake - lh_gold' =
+		let
+		    Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/e32e58cc-a2bd-4639-8563-50a4a2bb4530/f5b5043f-7133-47d3-a455-5b1eabee8a4a", [HierarchicalNavigation=true])
+		in
+		    Source
+	lineageTag: 47c2165e-391b-4c61-a796-afd5a8ffff73
+
+	annotation PBI_IncludeFutureArtifacts = False
+
+	annotation PBI_RemovedChildren = [{"remoteItemId":{"analysisServicesObject":{"sourceName":null,"sourceLineageTag":"[dbo].[DimDate]"}},"objectType":"Table"}]
+
+expression server = "bymztxakk5putfoa6y5ch7ea3y-blqsxdkw3bnepj23usbmqcgzya.datawarehouse.fabric.microsoft.com" meta [IsParameterQuery = true, IsParameterQueryRequired = false, Type = type text]
+	lineageTag: 39e47e04-8192-4644-9ad5-7adabbc29916
+
+	annotation PBI_ResultType = Text
+
+expression Database = "lh_gold" meta [IsParameterQuery = true, IsParameterQueryRequired = false, Type = type text]
+	lineageTag: 0893b088-3f77-4ac6-ad28-75177d60cb6f
+
+	annotation PBI_ResultType = Text
+
+expression DatabaseQuery1 =
+		let
+			Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/8d2be10a-d856-475a-a75b-a482c808d9c0/e6db21e6-2469-49d9-8948-f719427a7090")
+		in
+			Source
+	lineageTag: 49a80b62-e219-46b5-8ab4-974436deb3a8
+

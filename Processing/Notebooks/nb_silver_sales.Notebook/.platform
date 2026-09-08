@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_silver_sales",
+    "description": "criar tabela silver de vendas a partir das tabelas bronze de vendas(cabeçalho e detalhes)"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "dd2ba40a-de84-8249-4dea-81fa6aaef1b4"
+  }
+}

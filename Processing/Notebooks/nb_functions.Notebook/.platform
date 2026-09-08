@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_functions",
+    "description": "Funções globais de transformações para notebooks"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ec54894d-1a59-9b83-40f1-d4fd71d11668"
+  }
+}
