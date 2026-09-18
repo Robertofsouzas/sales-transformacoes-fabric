@@ -48,8 +48,8 @@
                 "properties": {
                   "type": "FabricSqlDatabase",
                   "typeProperties": {
-                    "artifactId": "e039ba30-f0db-49e0-8a06-22fd41160af6",
-                    "workspaceId": "c71ab6b5-747d-4117-a599-72679a918676"
+                    "artifactId": "c8baa827-97ed-b1d8-402b-e98d6a9fea9b",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
                   },
                   "externalReferences": {
                     "connection": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
