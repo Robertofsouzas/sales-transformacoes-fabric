@@ -1,0 +1,85 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00",
+            "datasetSettings": {
+              "type": "FabricSqlDatabaseTable",
+              "typeProperties": {
+                "schema": "dbo",
+                "table": "PipelineControl"
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "db_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "c8baa827-97ed-b1d8-402b-e98d6a9fea9b",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "FabricSqlDatabaseSink",
+            "sqlWriterUseTableLock": false,
+            "writeBehavior": "insert",
+            "datasetSettings": {
+              "type": "FabricSqlDatabaseTable",
+              "typeProperties": {
+                "schema": "dbo",
+                "table": "PipelineControl"
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "db_control",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "e039ba30-f0db-49e0-8a06-22fd41160af6",
+                    "workspaceId": "c71ab6b5-747d-4117-a599-72679a918676"
+                  },
+                  "externalReferences": {
+                    "connection": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Tabela controle",
+        "dependsOn": []
+      }
+    ]
+  }
+}

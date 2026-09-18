@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_seed_control"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "bdc21939-e8a6-b377-4425-6905a3c3ae76"
+  }
+}
