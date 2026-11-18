@@ -2,10 +2,34 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
   "variables": [
     {
-      "name": "cnn_sqlserver_adworks_dev",
-      "note": "Parâmetro de referência a conexão On-promise com SQL Server, no database AdventureWorksLT",
+      "name": "ambiente",
+      "note": "Nome do ambiente em que o workspace roda (dev, feature ou prd). O valor padrão 'default' existe de propósito: se algum workspace mostrar 'default', o conjunto de valores correto não foi ativado.",
       "type": "String",
-      "value": "c0ad4a20-c5c3-4698-8a38-20cedd58dd59"
+      "value": "default"
+    },
+    {
+      "name": "cnn_sqlserver_origem",
+      "note": "ID da conexão do Fabric com o SQL Server de origem (via gateway). Usada pelo pl_Staging.",
+      "type": "String",
+      "value": "8a906a6b-af57-4364-a3f0-fca6700c4ed5"
+    },
+    {
+      "name": "cnn_db_control",
+      "note": "ID da conexão do Fabric com o banco de controle db_control. Usada por pl_Staging, pl_bronze e pl_silver.",
+      "type": "String",
+      "value": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
+    },
+    {
+      "name": "cnn_invoke_pipeline",
+      "note": "ID da conexão usada pelo pl_master para chamar os outros pipelines.",
+      "type": "String",
+      "value": "4a0cffba-2636-4f22-9af2-4db979cfdab2"
+    },
+    {
+      "name": "cnn_semantic_refresh",
+      "note": "ID da conexão usada pelo pl_gold para atualizar (refresh) os modelos semânticos.",
+      "type": "String",
+      "value": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
     }
   ]
 }

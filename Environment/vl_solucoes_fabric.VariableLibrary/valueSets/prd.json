@@ -3,8 +3,8 @@
   "name": "prd",
   "variableOverrides": [
     {
-      "name": "cnn_sqlserver_adworks_dev",
-      "value": "822a86a5-0f46-42f8-bc07-8b438e855f2a"
+      "name": "ambiente",
+      "value": "prd"
     }
   ]
 }
