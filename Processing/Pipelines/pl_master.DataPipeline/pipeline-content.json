@@ -11,7 +11,7 @@
           "operationType": "InvokeFabricPipeline"
         },
         "externalReferences": {
-          "connection": "4a0cffba-2636-4f22-9af2-4db979cfdab2"
+          "connection": "@pipeline().libraryVariables.vl_solucoes_fabric_cnn_invoke_pipeline"
         },
         "policy": {
           "timeout": "0.00:10:00",
@@ -34,7 +34,7 @@
           "operationType": "InvokeFabricPipeline"
         },
         "externalReferences": {
-          "connection": "4a0cffba-2636-4f22-9af2-4db979cfdab2"
+          "connection": "@pipeline().libraryVariables.vl_solucoes_fabric_cnn_invoke_pipeline"
         },
         "policy": {
           "timeout": "0.00:10:00",
@@ -59,15 +59,15 @@
         "typeProperties": {
           "parameters": {},
           "waitOnCompletion": true,
-          "workspaceId": "9427dc65-306e-47ce-9b2e-daf7e1e97479",
-          "pipelineId": "d305e220-2b6b-42aa-af01-948b72f4cb1c",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "03d7e3d0-92eb-9580-454d-1c2e051fb5c4",
           "operationType": "InvokeFabricPipeline"
         },
         "externalReferences": {
-          "connection": "4a0cffba-2636-4f22-9af2-4db979cfdab2"
+          "connection": "@pipeline().libraryVariables.vl_solucoes_fabric_cnn_invoke_pipeline"
         },
         "policy": {
-          "timeout": "0.00:30:00",
+          "timeout": "0.00:10:00",
           "retry": 0,
           "retryIntervalInSeconds": 30,
           "secureInput": false,
@@ -75,9 +75,14 @@
         },
         "name": "Pipeline Gold",
         "description": "Executa o pipeline da camada Gold\n(Otimização de tabelas Delta e Atualização de modelos semânticos)",
-        "state": "Inactive",
-        "onInactiveMarkAs": "Succeeded",
-        "dependsOn": []
+        "dependsOn": [
+          {
+            "activity": "Pipeline silver",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
       },
       {
         "type": "InvokePipeline",
@@ -89,7 +94,7 @@
           "operationType": "InvokeFabricPipeline"
         },
         "externalReferences": {
-          "connection": "4a0cffba-2636-4f22-9af2-4db979cfdab2"
+          "connection": "@pipeline().libraryVariables.vl_solucoes_fabric_cnn_invoke_pipeline"
         },
         "policy": {
           "timeout": "0.00:10:00",
@@ -109,6 +114,13 @@
           }
         ]
       }
-    ]
+    ],
+    "libraryVariables": {
+      "vl_solucoes_fabric_cnn_invoke_pipeline": {
+        "type": "String",
+        "variableName": "cnn_invoke_pipeline",
+        "libraryName": "vl_solucoes_fabric"
+      }
+    }
   }
 }
