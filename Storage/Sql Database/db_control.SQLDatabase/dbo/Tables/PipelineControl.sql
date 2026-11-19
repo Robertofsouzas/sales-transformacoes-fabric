@@ -25,3 +25,11 @@ CREATE TABLE [dbo].[PipelineControl] (
 
 GO
 
+-- Regra do banco: a mesma tarefa (camada + entidade) não pode aparecer duas vezes.
+-- É o que torna o seed repetível: o banco recusa duplicados em vez de aceitá-los em silêncio.
+CREATE UNIQUE NONCLUSTERED INDEX [UX_PipelineControl_Camada_Entidade]
+    ON [dbo].[PipelineControl] ([PipelineLayer] ASC, [EntityName] ASC);
+
+
+GO
+
