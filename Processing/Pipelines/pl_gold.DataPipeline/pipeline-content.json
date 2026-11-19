@@ -127,6 +127,13 @@
           }
         ]
       }
-    ]
+    ],
+    "libraryVariables": {
+      "vl_solucoes_fabric_ambiente": {
+        "type": "String",
+        "variableName": "ambiente",
+        "libraryName": "vl_solucoes_fabric"
+      }
+    }
   }
 }
