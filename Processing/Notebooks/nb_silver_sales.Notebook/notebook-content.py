@@ -89,7 +89,7 @@ target_storage = "lh_silver"
 target_table   = "fato_vendas"
 target_mode    = "merge"   # opção : overwrite , Append e Merge
 
-target_key = "VENDA_ANALITICA"
+target_key = "Cod_Venda"
     
 
 # METADATA ********************
@@ -143,73 +143,6 @@ df_vendas_analiticas = spark.read.format("delta").load(path_bronze)
 # META   "language": "python",
 # META   "language_group": "synapse_pyspark"
 # META }
-
-# CELL ********************
-
-# Leitura das tabelas
-
-# Split das tabelas em lista para interação
-source_tables = source_tables.split("|")
-df={}
-
-
-# Iterador
-for table in source_tables:
-    path_bronze = (
-        f"abfss://{workspace_name}@onelake.dfs.fabric.microsoft.com/"
-        f"{source_storage}.Lakehouse/Tables/dbo/{table}"
-    )
-    # Faz a leitura e armazena cada tabela em seu respectivo Dataframe
-    df[table] = spark.read.format("delta").load(path_bronze)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark",
-# META   "frozen": true,
-# META   "editable": false
-# META }
-
-# MARKDOWN ********************
-
-# #### seleção de colunas e linhas
-
-# CELL ********************
-
-
-
-df_final = (
-    df_vendas_analiticas
-    .select(
-    
-        f.col("VENDA_ANALITICA").alias("Cod_Venda"),
-        f.coalesce(f.col("DOCUMENTO_NUMERO"), f.lit(0)).alias("N_Doc"),
-        f.col("EMPRESA").alias("Cod_Empresa"),
-        f.col("PRODUTO").alias("Cod_produto"),
-        f.coalesce(f.col("VENDEDOR"), f.lit(0)).alias("Cod_Vendedor"),
-        f.col("CLIENTE").alias("cod_Cliente"),
-        f.col("MOVIMENTO"),
-        f.col("QUANTIDADE").alias("Quantidade"),
-        f.col("VENDA_BRUTA").alias("Venda_Bruta"),
-        (
-            f.coalesce(f.col("DESCONTO"), f.lit(0))
-            + f.coalesce(f.col("DESCONTO_NEGOCIADO"), f.lit(0))
-        ).alias("Desconto"),
-        f.col("VENDA_LIQUIDA")
-    )
-)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# MARKDOWN ********************
-
-# #### Criação do Dataframe principal
 
 # CELL ********************
 
