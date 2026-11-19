@@ -226,7 +226,7 @@ if target_mode == "merge":
     safe_merge(df_final, path_silver,target_key)
 
 else:
-    df_final.write.format("delta").mode(target_mode).save(path)
+    df_final.write.format("delta").mode(target_mode).save(path_silver)
 
 # METADATA ********************
 
