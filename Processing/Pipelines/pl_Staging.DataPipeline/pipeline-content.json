@@ -49,6 +49,7 @@
       {
         "type": "ForEach",
         "typeProperties": {
+          "batchCount": 4,
           "items": {
             "value": "@activity('Orquestrador').output.value",
             "type": "Expression"
@@ -133,8 +134,8 @@
               },
               "policy": {
                 "timeout": "0.00:10:00",
-                "retry": 0,
-                "retryIntervalInSeconds": 30,
+                "retry": 2,
+                "retryIntervalInSeconds": 60,
                 "secureInput": false,
                 "secureOutput": false
               },
