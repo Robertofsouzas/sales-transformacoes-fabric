@@ -2,10 +2,147 @@
   "properties": {
     "activities": [
       {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderQuery": "SELECT * FROM dbo.PipelineControl \nWHERE PipelineLayer = 'Gold' \n  AND IsActive = 1;",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "PipelineControl"
+            },
+            "schema": [],
+            "connectionSettings": {
+              "name": "db_control",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "c8baa827-97ed-b1d8-402b-e98d6a9fea9b",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "d980b659-1c21-4ffb-bcc8-1e83ae16cac4"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.00:10:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Orquestrador",
+        "description": "Le o db_control com os metadados da camada Gold (uma linha por tabela)",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "batchCount": 4,
+          "items": {
+            "value": "@activity('Orquestrador').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "cad42a3a-072b-a8a1-4de5-f00497ebc74c",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "source_storage": {
+                    "value": {
+                      "value": "@item().SourceStorage",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "source_table": {
+                    "value": {
+                      "value": "@item().SourceTable",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_storage": {
+                    "value": {
+                      "value": "@item().TargetStorage",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_table": {
+                    "value": {
+                      "value": "@item().TargetTable",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_mode": {
+                    "value": {
+                      "value": "@item().TargetMode",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "target_key": {
+                    "value": {
+                      "value": "@item().TargetKey",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.00:20:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 60,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Gold",
+              "description": "Monta uma tabela da camada Gold a partir da Silver (nb_gold)",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "Interador",
+        "description": "Roda o nb_gold para cada tabela Gold do db_control (em paralelo, 4 por vez)",
+        "dependsOn": [
+          {
+            "activity": "Orquestrador",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
         "type": "TridentNotebook",
         "typeProperties": {
           "notebookId": "05a5595d-d1c0-8c5e-4ad3-1ca9c4273412",
-          "workspaceId": "00000000-0000-0000-0000-000000000000"
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "lakehouse": {
+              "value": {
+                "value": "@first(activity('Orquestrador').output.value).TargetStorage",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
         },
         "policy": {
           "timeout": "0.00:30:00",
@@ -15,125 +152,16 @@
           "secureOutput": false
         },
         "name": "Nb Otimizacao",
-        "description": "Executa o Notebook de otimizações de tabelas Delta",
-        "dependsOn": []
-      },
-      {
-        "type": "PBISemanticModelRefresh",
-        "typeProperties": {
-          "method": "POST",
-          "groupId": "e32e58cc-a2bd-4639-8563-50a4a2bb4530",
-          "datasetId": "b5dbe033-768f-4707-aeba-2eb712c94e10",
-          "commitMode": "Transactional",
-          "waitOnCompletion": true,
-          "operationType": "SemanticModelRefresh"
-        },
-        "externalReferences": {
-          "connection": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
-        },
-        "policy": {
-          "timeout": "0.00:10:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Reframing Direct Lake",
-        "description": "Atualizar os metadados (Reframing) do modelo Direct Lake",
+        "description": "Manutencao Delta (OPTIMIZE com V-Order e VACUUM) nas tabelas da Gold",
         "dependsOn": [
           {
-            "activity": "Nb Otimizacao",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "PBISemanticModelRefresh",
-        "typeProperties": {
-          "method": "POST",
-          "groupId": "e32e58cc-a2bd-4639-8563-50a4a2bb4530",
-          "datasetId": "b6e11cd6-115d-4d20-b640-b5522c2a2cc0",
-          "commitMode": "Transactional",
-          "objects": [
-            {
-              "table": "DimCustomers"
-            },
-            {
-              "table": "FactSales"
-            },
-            {
-              "table": "DimProducts"
-            }
-          ],
-          "waitOnCompletion": true,
-          "operationType": "SemanticModelRefresh"
-        },
-        "externalReferences": {
-          "connection": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
-        },
-        "policy": {
-          "timeout": "0.00:10:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Reframing Composite Model",
-        "description": "Atualizar os metadados (Reframing) do modelo Composite",
-        "dependsOn": [
-          {
-            "activity": "Nb Otimizacao",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "PBISemanticModelRefresh",
-        "typeProperties": {
-          "method": "POST",
-          "groupId": "e32e58cc-a2bd-4639-8563-50a4a2bb4530",
-          "datasetId": "b6e11cd6-115d-4d20-b640-b5522c2a2cc0",
-          "commitMode": "Transactional",
-          "objects": [
-            {
-              "table": "DimDate"
-            }
-          ],
-          "waitOnCompletion": true,
-          "operationType": "SemanticModelRefresh"
-        },
-        "externalReferences": {
-          "connection": "eb29f00f-4d5e-45e8-9f20-7da32a57c0cc"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Refresh composite Model",
-        "description": "Atualiza os dados do Modelo Composite (Direct Lake + Import) nas tabelas import",
-        "dependsOn": [
-          {
-            "activity": "Reframing Composite Model",
+            "activity": "Interador",
             "dependencyConditions": [
               "Succeeded"
             ]
           }
         ]
       }
-    ],
-    "libraryVariables": {
-      "vl_solucoes_fabric_ambiente": {
-        "type": "String",
-        "variableName": "ambiente",
-        "libraryName": "vl_solucoes_fabric"
-      }
-    }
+    ]
   }
 }

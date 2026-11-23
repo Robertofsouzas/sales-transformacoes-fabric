@@ -12,7 +12,7 @@ O nome do banco de origem vem do ambiente de quem roda; nunca fica no repositór
 import os
 import unittest
 
-ESPERADO = 34  # Staging 13 + Bronze 13 + Silver 8
+ESPERADO = 40  # Staging 13 + Bronze 13 + Silver 8 + Gold 6
 
 
 class TestRunSeed(unittest.TestCase):
