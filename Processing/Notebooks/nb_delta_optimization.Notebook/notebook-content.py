@@ -6,32 +6,21 @@
 # META   "kernel_info": {
 # META     "name": "synapse_pyspark"
 # META   },
-# META   "dependencies": {
-# META     "environment": {
-# META       "environmentId": "cb602006-de0a-b904-437b-8bb8c37164df",
-# META       "workspaceId": "00000000-0000-0000-0000-000000000000"
-# META     }
-# META   }
+# META   "dependencies": {}
 # META }
+
+# MARKDOWN ********************
+
+# # nb_delta_optimization: manutencao das tabelas Delta de um lakehouse
+# # Para cada tabela do lakehouse: **OPTIMIZE** (junta arquivos pequenos) com **V-Order** (melhora a leitura do Direct Lake)
+# e **VACUUM** (apaga arquivos antigos que nenhuma versao atual usa; retencao padrao de 7 dias).
+# # Usa so Spark SQL nativo: nao depende de biblioteca extra nem de Environment publicado (funciona igual em qualquer ambiente).
+# Uma tabela com problema nao impede as outras; no fim o notebook falha mostrando quais falharam.
 
 # CELL ********************
 
-# Bibliotecas Necessárias
 import sempy.fabric as fabric
 
-import sempy_labs as labs
-import sempy_labs.lakehouse as lake
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-# obtençao do workspace
 workspace = fabric.resolve_workspace_name()
 
 # METADATA ********************
@@ -41,12 +30,10 @@ workspace = fabric.resolve_workspace_name()
 # META   "language_group": "synapse_pyspark"
 # META }
 
-# CELL ********************
+# PARAMETERS CELL ********************
 
-# Parametros
-
-lakehouse = "lh_silver"
-table  = "dbo/Sales"
+# Parametros passados pelo pipeline (o lakehouse a manter)
+lakehouse = "lh_gold"
 
 # METADATA ********************
 
@@ -57,90 +44,35 @@ table  = "dbo/Sales"
 
 # CELL ********************
 
-# Captura as analises da tabela Delta e armazena em Dataframes
-
-x = labs.delta_analyzer(
-    table_name =  table,
-    lakehouse = lakehouse,
-    workspace = workspace
-)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark",
-# META   "frozen": true,
-# META   "editable": false
-# META }
-
-# CELL ********************
-
-# Exibe os resultados do Delta Aanalyzer
-for name,df in x.items():
-    print(name)
-    display(df)
+pasta = f"abfss://{workspace}@onelake.dfs.fabric.microsoft.com/{lakehouse}.Lakehouse/Tables/dbo"
+tabelas = sorted(item.name for item in notebookutils.fs.ls(pasta) if item.isDir)
+print(f"{lakehouse}: {len(tabelas)} tabelas -> {tabelas}")
 
 
-# METADATA ********************
+def detalhe(caminho):
+    d = spark.sql(f"DESCRIBE DETAIL delta.`{caminho}`").first()
+    return d["numFiles"], d["sizeInBytes"]
 
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark",
-# META   "frozen": true,
-# META   "editable": false
-# META }
 
-# CELL ********************
+falhas = []
+for nome in tabelas:
+    caminho = f"{pasta}/{nome}"
+    try:
+        antes = detalhe(caminho)
+        spark.sql(f"OPTIMIZE delta.`{caminho}` VORDER")
+        spark.sql(f"VACUUM delta.`{caminho}`")
+        depois = detalhe(caminho)
+        print(f"OK    {nome}: arquivos {antes[0]} -> {depois[0]}, bytes {antes[1]} -> {depois[1]}")
+    except Exception as erro:
+        print(f"FALHA {nome}: {type(erro).__name__}: {erro}")
+        falhas.append(nome)
 
-# Executa Optimize em todas as tabelas do lakehouse
-
-lake.optimize_lakehouse_tables(
-    lakehouse = lakehouse,
-    workspace = workspace
-)
+assert not falhas, f"manutencao falhou em: {falhas}"
+print("Manutencao concluida.")
 
 # METADATA ********************
 
 # META {
 # META   "language": "python",
 # META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-# Executa vacuum em todas as tabelas do lakehouse
-
-lake.vacuum_lakehouse_tables(
-    lakehouse = lakehouse,
-    workspace = workspace
-)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-# Executa todas as otimizações Delta para uma tabela especifica
-lake.run_table_maintenance(
-    table_name = table,
-    optimize= True,
-    v_order= True,
-    schema = "dbo",
-    vacuum= True,
-    lakehouse = lakehouse,
-    workspace = workspace
-)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark",
-# META   "frozen": true,
-# META   "editable": false
 # META }
