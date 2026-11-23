@@ -39,7 +39,13 @@ USING (VALUES
     (N'Bronze', N'SECOES_PRODUTOS', NULL, NULL, NULL, NULL, N'lh_bronze', NULL, N'lh_bronze', N'secoes_produtos.parquet', NULL, N'SECOES_PRODUTOS', N'overwrite', NULL, NULL, 1, N'secoes_produtos.parquet', N'Staging'),
     (N'Bronze', N'GRUPOS_PRODUTOS', NULL, NULL, NULL, NULL, N'lh_bronze', NULL, N'lh_bronze', N'grupos_produtos.parquet', NULL, N'GRUPOS_PRODUTOS', N'overwrite', NULL, NULL, 1, N'grupos_produtos.parquet', N'Staging'),
     (N'Bronze', N'SUBGRUPOS_PRODUTOS', NULL, NULL, NULL, NULL, N'lh_bronze', NULL, N'lh_bronze', N'subgrupos_produtos.parquet', NULL, N'SUBGRUPOS_PRODUTOS', N'overwrite', NULL, NULL, 1, N'subgrupos_produtos.parquet', N'Staging'),
-    (N'Bronze', N'MARCAS', NULL, NULL, NULL, NULL, N'lh_bronze', NULL, N'lh_bronze', N'marcas.parquet', NULL, N'MARCAS', N'overwrite', NULL, NULL, 1, N'marcas.parquet', N'Staging')
+    (N'Bronze', N'MARCAS', NULL, NULL, NULL, NULL, N'lh_bronze', NULL, N'lh_bronze', N'marcas.parquet', NULL, N'MARCAS', N'overwrite', NULL, NULL, 1, N'marcas.parquet', N'Staging'),
+    (N'Gold', N'dim_clientes', NULL, NULL, N'dim_entidades', NULL, N'lh_silver', NULL, N'lh_gold', NULL, NULL, N'dim_clientes', N'merge', N'cod_cliente', 1, 1, NULL, NULL),
+    (N'Gold', N'dim_produtos', NULL, NULL, N'dim_produtos', NULL, N'lh_silver', NULL, N'lh_gold', NULL, NULL, N'dim_produtos', N'merge', N'cod_produto', 1, 1, NULL, NULL),
+    (N'Gold', N'dim_vendedores', NULL, NULL, N'dim_vendedores', NULL, N'lh_silver', NULL, N'lh_gold', NULL, NULL, N'dim_vendedores', N'merge', N'cod_vendedor', 1, 1, NULL, NULL),
+    (N'Gold', N'dim_empresas', NULL, NULL, N'dim_empresas_usuarias', NULL, N'lh_silver', NULL, N'lh_gold', NULL, NULL, N'dim_empresas', N'merge', N'cod_empresa', 1, 1, NULL, NULL),
+    (N'Gold', N'fato_vendas', NULL, NULL, N'fato_vendas', NULL, N'lh_silver', NULL, N'lh_gold', NULL, NULL, N'fato_vendas', N'merge', N'cod_venda', 1, 1, NULL, NULL),
+    (N'Gold', N'dim_data', NULL, NULL, N'fato_vendas', NULL, N'lh_silver', NULL, N'lh_gold', NULL, NULL, N'dim_data', N'overwrite', N'data', 1, 1, NULL, NULL)
 ) AS s (PipelineLayer, EntityName, SourceDatabase, SourceSchema, SourceTable, SourceQuery, SourceStorage, SourceTables, TargetStorage, TargetFile, TargetFormat, TargetTable, TargetMode, TargetKey, Flag, IsActive, SourceFile, SourceFolder)
 ON t.PipelineLayer = s.PipelineLayer AND t.EntityName = s.EntityName
 WHEN MATCHED THEN UPDATE SET
