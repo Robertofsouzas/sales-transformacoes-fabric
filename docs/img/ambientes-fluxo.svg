@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 580" width="100%" role="img" aria-labelledby="t d">
+  <title id="t">Ambientes e fluxo de mudança</title>
+  <desc id="d">Fluxo feature, pull request, main no GitHub, atualização do Git, dev, pipeline de implantação com nota e prod. Correções em produção voltam a nascer em uma branch.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1620"/><stop offset="1" stop-color="#0f2230"/></linearGradient>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="aCy" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#4cc9f0"/></marker>
+    <marker id="aVi" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#9b87ff"/></marker>
+    <marker id="aGr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#3ddc97"/></marker>
+    <marker id="aAm" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#f6cd62"/></marker>
+    <marker id="aGy" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#7d93a6"/></marker>
+  </defs>
+  <style>
+    text{font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
+    .eyebrow{font-size:12px;letter-spacing:.22em;fill:#4cc9f0;font-weight:700}
+    .title{font-size:36px;fill:#fff;font-weight:700}
+    .sub{font-size:14px;fill:#8fa6b8}
+    .tag{font-size:10.5px;letter-spacing:.2em;font-weight:700}
+    .name{font-size:19px;fill:#fff;font-weight:700}
+    .desc{font-size:12.5px;fill:#9db2c3}
+    .step{font-size:13px;fill:#fff;font-weight:700;text-anchor:middle}
+    .stepd{font-size:11px;fill:#8fa6b8;text-anchor:middle}
+    .ic{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+    .flow{stroke-dasharray:6 6;animation:dash 1.4s linear infinite}
+    .back{stroke-dasharray:3 7;animation:dash 2.4s linear infinite}
+    .pulse{animation:pulse 2.8s ease-in-out infinite}
+    @keyframes dash{to{stroke-dashoffset:-24}}
+    @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+    @media (prefers-reduced-motion:reduce){.flow,.back,.pulse{animation:none}}
+  </style>
+
+  <rect width="1280" height="580" rx="18" fill="url(#bg)"/>
+  <rect x=".5" y=".5" width="1279" height="579" rx="18" fill="none" stroke="#1d3a4d"/>
+  <circle cx="1180" cy="60" r="150" fill="none" stroke="#14303f"/>
+  <circle cx="1180" cy="60" r="100" fill="none" stroke="#14303f"/>
+
+  <text class="eyebrow" x="40" y="46">CI/CD · MICROSOFT FABRIC + GITHUB</text>
+  <text class="title" x="40" y="90">Ambientes e fluxo de mudança</text>
+  <text class="sub" x="40" y="116">Toda mudança nasce numa branch, passa por revisão e só então chega à produção, com nota e registro.</text>
+  <rect x="1000" y="34" width="240" height="34" rx="17" fill="#0f2a3a" stroke="#1f5a73"/>
+  <circle class="pulse" cx="1022" cy="51" r="5" fill="#3ddc97"/>
+  <text x="1036" y="55" font-size="12" font-weight="700" letter-spacing=".1em" fill="#bfe9f7">PROD SÓ POR IMPLANTAÇÃO</text>
+
+  <!-- Setas (atrás dos cartões) -->
+  <path class="flow" d="M230 290 H277" stroke="#4cc9f0" stroke-width="2.4" fill="none" marker-end="url(#aCy)"/>
+  <path class="flow" d="M333 290 H378" stroke="#4cc9f0" stroke-width="2.4" fill="none" marker-end="url(#aCy)"/>
+  <path class="flow" d="M560 290 H607" stroke="#9b87ff" stroke-width="2.4" fill="none"/>
+  <path class="flow" d="M663 290 H708" stroke="#9b87ff" stroke-width="2.4" fill="none" marker-end="url(#aVi)"/>
+  <path class="flow" d="M890 290 H937" stroke="#3ddc97" stroke-width="2.4" fill="none"/>
+  <path class="flow" d="M993 290 H1038" stroke="#3ddc97" stroke-width="2.4" fill="none" marker-end="url(#aGr)"/>
+
+  <!-- Cartão 1: Feature -->
+  <g filter="url(#sh)">
+    <rect x="50" y="170" width="180" height="210" rx="16" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="50" y="170" width="180" height="5" rx="2.5" fill="#4cc9f0"/>
+  </g>
+  <text class="tag" x="70" y="204" fill="#4cc9f0">01 · AMBIENTE</text>
+  <circle cx="140" cy="256" r="32" fill="#0e3b4f" stroke="#4cc9f0" stroke-width="1.6" filter="url(#glow)"/>
+  <g transform="translate(140 256)" class="ic">
+    <circle cx="-7" cy="-9" r="3"/><circle cx="-7" cy="9" r="3"/><circle cx="8" cy="-4" r="3"/>
+    <path d="M-7 -6 V6"/><path d="M8 -1 C8 5 -7 3 -7 4"/>
+  </g>
+  <text class="name" x="140" y="328" text-anchor="middle">Feature</text>
+  <text class="desc" x="140" y="349" text-anchor="middle">Desenvolvimento isolado</text>
+  <text class="desc" x="140" y="366" text-anchor="middle">branch feature/...</text>
+
+  <!-- Passo 1: pull request -->
+  <circle cx="305" cy="290" r="26" fill="#0e3b4f" stroke="#4cc9f0" stroke-width="1.6"/>
+  <g transform="translate(305 290)" class="ic">
+    <circle cx="-7" cy="-8" r="2.6"/><circle cx="-7" cy="8" r="2.6"/><circle cx="7" cy="8" r="2.6"/>
+    <path d="M-7 -5.4 V5.4"/><path d="M7 5.4 V-3 a4 4 0 0 0 -4 -4 H0"/><path d="M3 -10.5 L0 -7 L3 -3.5"/>
+  </g>
+  <text class="step" x="305" y="342">Pull request</text>
+  <text class="stepd" x="305" y="358">revisão e aprovação</text>
+
+  <!-- Cartão 2: main -->
+  <g filter="url(#sh)">
+    <rect x="380" y="170" width="180" height="210" rx="16" fill="#1a1838" stroke="#4a3f9a"/>
+    <rect x="380" y="170" width="180" height="5" rx="2.5" fill="#9b87ff"/>
+  </g>
+  <text class="tag" x="400" y="204" fill="#9b87ff">REPOSITÓRIO</text>
+  <circle cx="470" cy="256" r="32" fill="#2a2465" stroke="#9b87ff" stroke-width="1.6" filter="url(#glow)"/>
+  <g transform="translate(470 256)" class="ic">
+    <path d="M-8 -11 H7 a2 2 0 0 1 2 2 V9 a2 2 0 0 1 -2 2 H-6 a2 2 0 0 1 -2 -2 Z"/>
+    <path d="M-8 6 H9"/><path d="M-3 -5 H4"/><path d="M-3 -1 H4"/>
+  </g>
+  <text class="name" x="470" y="328" text-anchor="middle">main</text>
+  <text class="desc" x="470" y="349" text-anchor="middle">GitHub · fonte da verdade</text>
+  <text class="desc" x="470" y="366" text-anchor="middle">só entra via PR</text>
+
+  <!-- Passo 2: atualizar do Git -->
+  <circle cx="635" cy="290" r="26" fill="#2a2465" stroke="#9b87ff" stroke-width="1.6"/>
+  <g transform="translate(635 290)" class="ic">
+    <path d="M8 -3 A8 8 0 0 0 -7 -4"/><path d="M-8 3 A8 8 0 0 0 7 4"/>
+    <path d="M9 -9 V-3 H3"/><path d="M-9 9 V3 H-3"/>
+  </g>
+  <text class="step" x="635" y="342">Atualizar do Git</text>
+  <text class="stepd" x="635" y="358">dev sincroniza com a main</text>
+
+  <!-- Cartão 3: dev -->
+  <g filter="url(#sh)">
+    <rect x="710" y="170" width="180" height="210" rx="16" fill="#102f2d" stroke="#1d6b58"/>
+    <rect x="710" y="170" width="180" height="5" rx="2.5" fill="#3ddc97"/>
+  </g>
+  <text class="tag" x="730" y="204" fill="#3ddc97">02 · AMBIENTE</text>
+  <circle cx="800" cy="256" r="32" fill="#0f4a40" stroke="#3ddc97" stroke-width="1.6" filter="url(#glow)"/>
+  <g transform="translate(800 256)" class="ic">
+    <path d="M-4 -11 V-3 L-9 8 a2 2 0 0 0 2 3 H7 a2 2 0 0 0 2 -3 L4 -3 V-11"/><path d="M-6 -11 H6"/><path d="M-6 3 H6"/>
+  </g>
+  <text class="name" x="800" y="328" text-anchor="middle">Dev</text>
+  <text class="desc" x="800" y="349" text-anchor="middle">Integração e testes</text>
+  <text class="desc" x="800" y="366" text-anchor="middle">ligado à main</text>
+
+  <!-- Passo 3: implantação -->
+  <circle cx="965" cy="290" r="26" fill="#0f4a40" stroke="#3ddc97" stroke-width="1.6"/>
+  <g transform="translate(965 290)" class="ic">
+    <path d="M0 9 V-8"/><path d="M-6 -2 L0 -8 L6 -2"/><path d="M-9 12 H9"/>
+  </g>
+  <text class="step" x="965" y="342">Implantação</text>
+  <text class="stepd" x="965" y="358">seletiva, com nota</text>
+
+  <!-- Cartão 4: prod -->
+  <g filter="url(#sh)">
+    <rect x="1040" y="170" width="180" height="210" rx="16" fill="#2b2412" stroke="#8a6a1f"/>
+    <rect x="1040" y="170" width="180" height="5" rx="2.5" fill="#f6cd62"/>
+  </g>
+  <text class="tag" x="1060" y="204" fill="#f6cd62">03 · AMBIENTE</text>
+  <circle cx="1130" cy="256" r="32" fill="#4a3a10" stroke="#f6cd62" stroke-width="1.6" filter="url(#glow)"/>
+  <g transform="translate(1130 256)" class="ic">
+    <path d="M0 -11 L9 -7 V1 C9 7 5 10 0 12 C-5 10 -9 7 -9 1 V-7 Z"/><path d="M-4 1 L-1 4 L5 -3"/>
+  </g>
+  <text class="name" x="1130" y="328" text-anchor="middle">Prod</text>
+  <text class="desc" x="1130" y="349" text-anchor="middle">Produção, sem Git</text>
+  <text class="desc" x="1130" y="366" text-anchor="middle">nunca editado direto</text>
+
+  <!-- Retorno: correção nasce na feature -->
+  <path class="back" d="M1130 384 V420 Q1130 436 1114 436 H156 Q140 436 140 420 V386" stroke="#7d93a6" stroke-width="2" fill="none" marker-end="url(#aGy)"/>
+  <rect x="470" y="420" width="340" height="32" rx="16" fill="#12222f" stroke="#2b4558"/>
+  <text x="640" y="441" text-anchor="middle" font-size="12.5" fill="#bcd0df">Correção em produção? Nasce numa branch e refaz o caminho</text>
+
+  <!-- Regras -->
+  <g>
+    <rect x="50" y="486" width="380" height="58" rx="12" fill="#14192f" stroke="#2c2f5a"/>
+    <rect x="50" y="486" width="5" height="58" rx="2.5" fill="#7b61ff"/>
+    <text x="72" y="510" font-size="13" font-weight="700" fill="#e3e6ff">Git guarda definições, não dados</text>
+    <text x="72" y="529" class="desc">cada ambiente se enche rodando o próprio pipeline</text>
+    <rect x="450" y="486" width="380" height="58" rx="12" fill="#14192f" stroke="#2c2f5a"/>
+    <rect x="450" y="486" width="5" height="58" rx="2.5" fill="#7b61ff"/>
+    <text x="472" y="510" font-size="13" font-weight="700" fill="#e3e6ff">Variable Library por ambiente</text>
+    <text x="472" y="529" class="desc">dev, feature e prd, sem IDs fixos nos pipelines</text>
+    <rect x="850" y="486" width="370" height="58" rx="12" fill="#14192f" stroke="#2c2f5a"/>
+    <rect x="850" y="486" width="5" height="58" rx="2.5" fill="#7b61ff"/>
+    <text x="872" y="510" font-size="13" font-weight="700" fill="#e3e6ff">Toda implantação é registrada</text>
+    <text x="872" y="529" class="desc">nota com o quê, por quê, commit e verificação</text>
+  </g>
+  <text x="1240" y="568" text-anchor="end" font-size="11" letter-spacing=".18em" fill="#4cc9f0" font-weight="700">FEATURE → MAIN → DEV → PROD</text>
+</svg>
