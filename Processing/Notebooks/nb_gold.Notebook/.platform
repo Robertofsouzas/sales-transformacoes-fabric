@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_gold",
+    "description": "Monta uma tabela da camada Gold por vez, guiado pelo db_control"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "cad42a3a-072b-a8a1-4de5-f00497ebc74c"
+  }
+}
