@@ -1,0 +1,20 @@
+relationship 1aa81034-a1ef-4bed-9765-4a3f00059607
+	fromColumn: fato_vendas.cod_cliente
+	toColumn: dim_clientes.cod_cliente
+
+relationship 6221f368-0da4-4251-82b8-165fb9dcad93
+	fromColumn: fato_vendas.cod_produto
+	toColumn: dim_produtos.cod_produto
+
+relationship ad54c700-4d30-431b-b8e9-5cdd4e53df8b
+	fromColumn: fato_vendas.cod_vendedor
+	toColumn: dim_vendedores.cod_vendedor
+
+relationship cea46245-df66-4349-983c-94eda0822b7f
+	fromColumn: fato_vendas.cod_empresa
+	toColumn: dim_empresas.cod_empresa
+
+relationship c41894e4-752e-4643-ae1e-78d0731fbbec
+	fromColumn: fato_vendas.movimento
+	toColumn: dim_data.data
+

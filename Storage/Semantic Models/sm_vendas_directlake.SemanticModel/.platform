@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "sm_vendas_directlake",
+    "description": "Modelo Direct Lake on OneLake das vendas (camada Gold)"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "95103999-1305-8eaf-4f4b-ee87d928ed89"
+  }
+}

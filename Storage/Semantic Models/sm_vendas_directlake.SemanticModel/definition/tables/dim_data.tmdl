@@ -1,0 +1,89 @@
+table dim_data
+	lineageTag: f1762e83-b8b5-47d2-b0e0-e1f14c14706a
+	dataCategory: Time
+
+	column data
+		dataType: dateTime
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: 86a06538-bb97-48d9-96bf-9f07a5f3abad
+		summarizeBy: none
+		sourceColumn: data
+
+	column ano
+		dataType: int64
+		formatString: 0
+		lineageTag: e24c32cd-c354-430f-ab13-4940a7a14de6
+		summarizeBy: none
+		sourceColumn: ano
+
+	column trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 1480aadd-b2dd-474b-b563-a410d03f882e
+		summarizeBy: none
+		sourceColumn: trimestre
+
+	column mes
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e95b8661-a53e-405b-9013-56b6c8f4491a
+		summarizeBy: none
+		sourceColumn: mes
+
+	column nome_mes
+		dataType: string
+		lineageTag: 27d594f8-4204-46b3-ae7e-056161fc6d7c
+		summarizeBy: none
+		sourceColumn: nome_mes
+		sortByColumn: mes
+
+	column dia
+		dataType: int64
+		formatString: 0
+		lineageTag: 1107ad89-6842-4d3e-acdc-f80928b0b653
+		summarizeBy: none
+		sourceColumn: dia
+
+	column dia_semana
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c33a8bc3-09f9-411f-bbed-fa3ca5a4c968
+		summarizeBy: none
+		sourceColumn: dia_semana
+
+	column nome_dia_semana
+		dataType: string
+		lineageTag: b92cd23a-5c40-4295-b239-10f288936696
+		summarizeBy: none
+		sourceColumn: nome_dia_semana
+		sortByColumn: dia_semana
+
+	column semana_iso
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ebad4d3-0b45-452c-ab06-e72d5b28039c
+		summarizeBy: none
+		sourceColumn: semana_iso
+
+	column fim_de_semana
+		dataType: boolean
+		lineageTag: 535811ac-4ce2-4465-b225-654870f7dbbd
+		summarizeBy: none
+		sourceColumn: fim_de_semana
+
+	column ano_mes
+		dataType: string
+		lineageTag: 71ac65be-a424-48b9-9ceb-90c56d3b5e2c
+		summarizeBy: none
+		sourceColumn: ano_mes
+
+	partition dim_data = entity
+		mode: directLake
+		source
+			entityName: dim_data
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

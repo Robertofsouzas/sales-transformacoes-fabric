@@ -1,0 +1,32 @@
+table dim_vendedores
+	lineageTag: a696a1c3-bfbf-428f-b313-4cd9eeb29159
+
+	column cod_vendedor
+		dataType: decimal
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 36b2a920-f603-445f-8017-0b4e2b7b38ba
+		summarizeBy: none
+		sourceColumn: cod_vendedor
+
+	column nome
+		dataType: string
+		lineageTag: 2a19515b-d1f2-4620-b158-a4e43b8164a9
+		summarizeBy: none
+		sourceColumn: nome
+
+	column data_carga
+		dataType: dateTime
+		isHidden
+		lineageTag: 00050be3-1f4e-4931-b1d8-78946e933ecd
+		summarizeBy: none
+		sourceColumn: data_carga
+
+	partition dim_vendedores = entity
+		mode: directLake
+		source
+			entityName: dim_vendedores
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

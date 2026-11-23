@@ -1,0 +1,62 @@
+table dim_clientes
+	lineageTag: b978fd3b-b782-4ad3-83a6-44310ae2c2e8
+
+	column cod_cliente
+		dataType: decimal
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 2f24a920-9d90-4ecb-b3d9-48f333cfc70a
+		summarizeBy: none
+		sourceColumn: cod_cliente
+
+	column nome
+		dataType: string
+		lineageTag: 777a115c-5b00-4237-b9fd-060beaa47103
+		summarizeBy: none
+		sourceColumn: nome
+
+	column nome_fantasia
+		dataType: string
+		lineageTag: f00d7433-b34a-4a7d-90e9-d26fb2e4254d
+		summarizeBy: none
+		sourceColumn: nome_fantasia
+
+	column nome_classificacao
+		dataType: string
+		lineageTag: f8c5228e-96d3-4a27-87ae-b6dfccb11a9f
+		summarizeBy: none
+		sourceColumn: nome_classificacao
+
+	column cidade
+		dataType: string
+		lineageTag: f3122ccb-309c-4864-a026-cd62055cfbff
+		summarizeBy: none
+		sourceColumn: cidade
+
+	column estado
+		dataType: string
+		lineageTag: 2ede9ce2-67f9-484a-8089-aab36da4b4d2
+		summarizeBy: none
+		sourceColumn: estado
+
+	column uf
+		dataType: string
+		lineageTag: 9a5e924a-7fcb-4495-9fe9-fdd6d3d42169
+		summarizeBy: none
+		sourceColumn: uf
+
+	column data_carga
+		dataType: dateTime
+		isHidden
+		lineageTag: 9cf3aea2-a344-40ef-9339-ed703cac40ba
+		summarizeBy: none
+		sourceColumn: data_carga
+
+	partition dim_clientes = entity
+		mode: directLake
+		source
+			entityName: dim_clientes
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+
