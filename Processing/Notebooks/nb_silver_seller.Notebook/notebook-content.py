@@ -199,7 +199,7 @@ df_final = (
     .select(
         "VENDEDOR",
         "NOME"
-    ).limit(20)
+    )
 
 ).withColumn(
         "DataCarga",
