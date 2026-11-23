@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="100%" role="img" aria-labelledby="t d">
+  <title id="t">Arquitetura medalhão do projeto sales-transformacoes-fabric</title>
+  <desc id="d">Fluxo da origem SQL Server até o consumo em Power BI, passando por Staging, Bronze, Silver e Gold, com governança e resiliência na base.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1620"/><stop offset="1" stop-color="#0f2230"/></linearGradient>
+    <linearGradient id="gBronze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8955a"/><stop offset="1" stop-color="#b9632d"/></linearGradient>
+    <linearGradient id="gSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3d3e2"/><stop offset="1" stop-color="#8da3b8"/></linearGradient>
+    <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6cd62"/><stop offset="1" stop-color="#d49a1e"/></linearGradient>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+    <marker id="arCy" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#4cc9f0"/></marker>
+    <marker id="arOr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#e8955a"/></marker>
+    <marker id="arSi" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#aebfd0"/></marker>
+    <marker id="arGo" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#f6cd62"/></marker>
+  </defs>
+  <style>
+    text{font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
+    .eyebrow{font-size:12px;letter-spacing:.22em;fill:#4cc9f0;font-weight:700}
+    .title{font-size:36px;fill:#fff;font-weight:700}
+    .sub{font-size:14px;fill:#8fa6b8}
+    .col{font-size:11px;letter-spacing:.2em;fill:#4cc9f0;font-weight:700}
+    .cardt{font-size:15px;fill:#fff;font-weight:700}
+    .cards{font-size:11.5px;fill:#8fa6b8}
+    .lay{font-size:10.5px;letter-spacing:.22em;font-weight:700}
+    .big{font-size:28px;font-weight:800;letter-spacing:.04em}
+    .lead{font-size:13px;fill:#d7e3ee}
+    .pill{font-size:12px;fill:#d7e3ee}
+    .obj{font-size:11px;fill:#8fa6b8}
+    .flow{stroke-dasharray:6 6;animation:dash 1.4s linear infinite}
+    .pulse{animation:pulse 2.8s ease-in-out infinite}
+    @keyframes dash{to{stroke-dashoffset:-24}}
+    @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+    @media (prefers-reduced-motion:reduce){.flow,.pulse{animation:none}}
+  </style>
+
+  <rect width="1280" height="640" rx="18" fill="url(#bg)"/>
+  <rect x=".5" y=".5" width="1279" height="639" rx="18" fill="none" stroke="#1d3a4d"/>
+  <circle cx="1180" cy="60" r="150" fill="none" stroke="#14303f" stroke-width="1"/>
+  <circle cx="1180" cy="60" r="100" fill="none" stroke="#14303f" stroke-width="1"/>
+
+  <!-- Cabeçalho -->
+  <text class="eyebrow" x="40" y="46">ARQUITETURA DE DADOS · LAKEHOUSE NO MICROSOFT FABRIC</text>
+  <text class="title" x="40" y="90">Arquitetura Medalhão</text>
+  <text class="sub" x="40" y="116">Da origem ao relatório: cada camada eleva a qualidade, e cada ambiente é promovido por Git e pipeline de implantação.</text>
+  <rect x="1020" y="34" width="220" height="34" rx="17" fill="#0f2a3a" stroke="#1f5a73"/>
+  <circle class="pulse" cx="1042" cy="51" r="5" fill="#3ddc97"/>
+  <text x="1056" y="55" font-size="12" font-weight="700" letter-spacing=".12em" fill="#bfe9f7">DADOS FICTÍCIOS</text>
+
+  <!-- Rótulos de coluna -->
+  <text class="col" x="40" y="168">01 · ORIGEM</text>
+  <text class="col" x="270" y="168">02 · NÚCLEO MEDALHÃO</text>
+  <text class="col" x="1050" y="168">03 · CONSUMO</text>
+
+  <!-- Origem -->
+  <g filter="url(#sh)">
+    <rect x="40" y="184" width="180" height="76" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="40" y="184" width="4" height="76" rx="2" fill="#4cc9f0"/>
+    <text class="cardt" x="60" y="215">SQL Server</text>
+    <text class="cards" x="60" y="236">Origem local, via gateway</text>
+    <text class="cards" x="60" y="252">cópia por pl_Staging</text>
+    <rect x="40" y="272" width="180" height="76" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="40" y="272" width="4" height="76" rx="2" fill="#4cc9f0"/>
+    <text class="cardt" x="60" y="303">Staging</text>
+    <text class="cards" x="60" y="324">Arquivos parquet</text>
+    <text class="cards" x="60" y="340">13 entidades</text>
+    <rect x="40" y="360" width="180" height="76" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="40" y="360" width="4" height="76" rx="2" fill="#7b61ff"/>
+    <text class="cardt" x="60" y="391">db_control</text>
+    <text class="cards" x="60" y="412">Banco de controle (SQL)</text>
+    <text class="cards" x="60" y="428">guia todas as cargas</text>
+  </g>
+  <path class="flow" d="M222 310 H262" stroke="#4cc9f0" stroke-width="2.4" fill="none" marker-end="url(#arCy)"/>
+
+  <!-- Bronze -->
+  <g filter="url(#sh)">
+    <rect x="270" y="184" width="220" height="252" rx="16" fill="#13222e" stroke="#7a4a2a"/>
+    <path d="M270 200a16 16 0 0 1 16-16h188a16 16 0 0 1 16 16v50H270z" fill="url(#gBronze)"/>
+  </g>
+  <text class="lay" x="290" y="208" fill="#3a1d08">CAMADA 01</text>
+  <text class="big" x="290" y="238" fill="#2b1405">BRONZE</text>
+  <text class="lead" x="290" y="278">Dados como chegaram da origem.</text>
+  <g>
+    <rect x="288" y="292" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="302" cy="307" r="3.5" fill="#e8955a"/><text class="pill" x="314" y="311">13 tabelas Delta</text>
+    <rect x="288" y="328" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="302" cy="343" r="3.5" fill="#e8955a"/><text class="pill" x="314" y="347">Cargas guiadas pelo db_control</text>
+    <rect x="288" y="364" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="302" cy="379" r="3.5" fill="#e8955a"/><text class="pill" x="314" y="383">Carga repetível, sem duplicar</text>
+  </g>
+  <text class="obj" x="290" y="422">pl_bronze · nb_bronze</text>
+  <path class="flow" d="M492 310 H522" stroke="#e8955a" stroke-width="2.4" fill="none" marker-end="url(#arOr)"/>
+
+  <!-- Silver -->
+  <g filter="url(#sh)">
+    <rect x="530" y="184" width="220" height="252" rx="16" fill="#13222e" stroke="#4d6378"/>
+    <path d="M530 200a16 16 0 0 1 16-16h188a16 16 0 0 1 16 16v50H530z" fill="url(#gSilver)"/>
+  </g>
+  <text class="lay" x="550" y="208" fill="#1c2a37">CAMADA 02</text>
+  <text class="big" x="550" y="238" fill="#14212c">SILVER</text>
+  <text class="lead" x="550" y="278">Dados limpos e conectados.</text>
+  <g>
+    <rect x="548" y="292" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="562" cy="307" r="3.5" fill="#aebfd0"/><text class="pill" x="574" y="311">4 dimensões + 1 fato</text>
+    <rect x="548" y="328" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="562" cy="343" r="3.5" fill="#aebfd0"/><text class="pill" x="574" y="347">MERGE Delta (safe_merge)</text>
+    <rect x="548" y="364" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="562" cy="379" r="3.5" fill="#aebfd0"/><text class="pill" x="574" y="383">Contagens conferidas por ambiente</text>
+  </g>
+  <text class="obj" x="550" y="422">pl_silver · nb_silver_*</text>
+  <path class="flow" d="M752 310 H782" stroke="#aebfd0" stroke-width="2.4" fill="none" marker-end="url(#arSi)"/>
+
+  <!-- Gold -->
+  <g filter="url(#sh)">
+    <rect x="790" y="184" width="220" height="252" rx="16" fill="#13222e" stroke="#8a6a1f"/>
+    <path d="M790 200a16 16 0 0 1 16-16h188a16 16 0 0 1 16 16v50H790z" fill="url(#gGold)"/>
+  </g>
+  <text class="lay" x="810" y="208" fill="#3d2a00">CAMADA 03</text>
+  <text class="big" x="810" y="238" fill="#2e1f00">GOLD</text>
+  <text class="lead" x="810" y="278">Dados prontos para gerar valor.</text>
+  <g>
+    <rect x="808" y="292" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="822" cy="307" r="3.5" fill="#f6cd62"/><text class="pill" x="834" y="311">Modelo dimensional (estrela)</text>
+    <rect x="808" y="328" width="184" height="30" rx="8" fill="#1b303f"/><circle cx="822" cy="343" r="3.5" fill="#f6cd62"/><text class="pill" x="834" y="347">Checagens de qualidade antes</text>
+    <rect x="808" y="364" width="184" height="30" rx="8" fill="#2a2a1b" stroke="#8a6a1f" stroke-dasharray="3 3"/><circle class="pulse" cx="822" cy="379" r="3.5" fill="#f6cd62"/><text class="pill" x="834" y="383">Em construção (fase B)</text>
+  </g>
+  <text class="obj" x="810" y="422">pl_gold · nb_gold</text>
+  <path class="flow" d="M1012 310 H1042" stroke="#f6cd62" stroke-width="2.4" fill="none" marker-end="url(#arGo)"/>
+
+  <!-- Consumo -->
+  <g filter="url(#sh)">
+    <rect x="1050" y="184" width="190" height="112" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="1050" y="184" width="4" height="112" rx="2" fill="#f6cd62"/>
+    <text class="cardt" x="1070" y="216">Modelo semântico</text>
+    <text class="cards" x="1070" y="238">Direct Lake sobre o Gold</text>
+    <text class="cards" x="1070" y="256">medidas em DAX</text>
+    <text class="cards" x="1070" y="280" fill="#f6cd62">planejado · fase C</text>
+    <rect x="1050" y="312" width="190" height="124" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="1050" y="312" width="4" height="124" rx="2" fill="#f6cd62"/>
+    <text class="cardt" x="1070" y="344">Relatório Power BI</text>
+    <text class="cards" x="1070" y="366">3 páginas para a gestão</text>
+    <text class="cards" x="1070" y="384">vendas, produtos, vendedores</text>
+    <text class="cards" x="1070" y="408" fill="#f6cd62">planejado · fase C</text>
+  </g>
+
+  <!-- Base: governança -->
+  <g filter="url(#sh)">
+    <rect x="40" y="462" width="1200" height="120" rx="14" fill="#14192f" stroke="#2c2f5a"/>
+    <rect x="40" y="462" width="6" height="120" rx="3" fill="#7b61ff"/>
+  </g>
+  <text class="cardt" x="68" y="494">Governança, resiliência e segurança</text>
+  <text class="cards" x="68" y="514">Uma fundação contínua para todos os ambientes: dev, feature e prod.</text>
+  <g>
+    <rect x="68" y="528" width="268" height="40" rx="10" fill="#1b2142" stroke="#34397a"/>
+    <text x="84" y="545" font-size="12" font-weight="700" fill="#e3e6ff">Git + Pull Request</text><text class="cards" x="84" y="560">versiona definições, nunca dados</text>
+    <rect x="348" y="528" width="268" height="40" rx="10" fill="#1b2142" stroke="#34397a"/>
+    <text x="364" y="545" font-size="12" font-weight="700" fill="#e3e6ff">Pipeline de implantação</text><text class="cards" x="364" y="560">dev para prod, com nota registrada</text>
+    <rect x="628" y="528" width="268" height="40" rx="10" fill="#1b2142" stroke="#34397a"/>
+    <text x="644" y="545" font-size="12" font-weight="700" fill="#e3e6ff">Variable Library</text><text class="cards" x="644" y="560">um conjunto de valores por ambiente</text>
+    <rect x="908" y="528" width="312" height="40" rx="10" fill="#1b2142" stroke="#34397a"/>
+    <text x="924" y="545" font-size="12" font-weight="700" fill="#e3e6ff">Retry, limite de paralelismo e seed repetível</text><text class="cards" x="924" y="560">carga resiliente e segura para repetir</text>
+  </g>
+
+  <!-- Rodapé -->
+  <circle cx="44" cy="612" r="4" fill="#e8955a"/><text class="obj" x="54" y="616">BRONZE · captura sem perda</text>
+  <circle cx="264" cy="612" r="4" fill="#aebfd0"/><text class="obj" x="274" y="616">SILVER · confiança e integração</text>
+  <circle cx="514" cy="612" r="4" fill="#f6cd62"/><text class="obj" x="524" y="616">GOLD · dados acionáveis</text>
+  <text class="obj" x="1240" y="616" text-anchor="end" letter-spacing=".18em" fill="#4cc9f0">RAW → TRUSTED → BUSINESS-READY</text>
+</svg>
