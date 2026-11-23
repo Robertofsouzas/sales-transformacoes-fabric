@@ -23,12 +23,9 @@ Funções reutilizáveis, como o `safe_merge` (carga incremental idempotente), f
 
 ## Ambientes e fluxo de mudança
 
-```mermaid
-flowchart LR
-    F["Workspace feature<br/>(branch feature/...)"] -->|pull request| M["main (GitHub)"]
-    M -->|atualizar a partir do Git| D["Workspace dev"]
-    D -->|pipeline de implantação<br/>com nota| P["Workspace prod"]
-```
+<p align="center">
+  <img src="docs/img/ambientes-fluxo.svg" alt="Fluxo de mudança: feature, pull request, main no GitHub, atualização do Git, dev, implantação com nota e prod. Correções em produção voltam a nascer numa branch." width="100%">
+</p>
 
 - **Feature:** onde cada pessoa desenvolve, ligada a uma branch própria. Nada vai direto para a `main`.
 - **Dev:** ligado à `main`. Recebe o que foi aprovado no pull request.
