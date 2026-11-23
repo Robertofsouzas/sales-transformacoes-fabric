@@ -1,0 +1,176 @@
+table fato_vendas
+	lineageTag: baf1f68a-7267-4760-a7a6-c95acd322a0f
+
+	/// Soma da venda bruta (antes do desconto).
+	measure 'Vendas Brutas' = SUM(fato_vendas[venda_bruta])
+		formatString: "R$"\ #,0.00
+		displayFolder: 1 Vendas
+		lineageTag: ec6a3430-1acf-426b-ad92-9f2b64699b0f
+
+	/// Soma dos descontos concedidos.
+	measure Descontos = SUM(fato_vendas[desconto])
+		formatString: "R$"\ #,0.00
+		displayFolder: 1 Vendas
+		lineageTag: ce7b7193-d2b2-4e06-a81a-79a34bb996b5
+
+	/// Venda bruta menos descontos.
+	measure 'Vendas Líquidas' = SUM(fato_vendas[venda_liquida])
+		formatString: "R$"\ #,0.00
+		displayFolder: 1 Vendas
+		lineageTag: 6cb5f7c7-0aa7-4a97-bd35-8eaef7aebcc2
+
+	/// Quantidade vendida.
+	measure 'Quantidade Vendida' = SUM(fato_vendas[quantidade])
+		formatString: #,0.00
+		displayFolder: 1 Vendas
+		lineageTag: 7904d25b-1f13-41d7-aac5-40f7ba730fd1
+
+	/// Documentos distintos (n_doc). Nao afirmamos que 1 documento = 1 pedido.
+	measure Documentos = DISTINCTCOUNT(fato_vendas[n_doc])
+		formatString: #,0
+		displayFolder: 1 Vendas
+		lineageTag: d1af31e5-b467-4679-a434-986c702811d9
+
+	/// Vendas liquidas por documento.
+	measure 'Ticket Médio' = DIVIDE([Vendas Líquidas], [Documentos])
+		formatString: "R$"\ #,0.00
+		displayFolder: 1 Vendas
+		lineageTag: 26018c64-45f3-4435-b2b3-61fab79b6c92
+
+	/// Desconto sobre a venda bruta.
+	measure 'Desconto %' = DIVIDE([Descontos], [Vendas Brutas])
+		formatString: 0.0%
+		displayFolder: 1 Vendas
+		lineageTag: 4257a6e0-83d6-4fd4-b781-ae6084eb13d4
+
+	/// Vendas liquidas no mes anterior ao periodo selecionado.
+	measure 'Vendas Mês Anterior' = CALCULATE([Vendas Líquidas], DATEADD(dim_data[data], -1, MONTH))
+		formatString: "R$"\ #,0.00
+		displayFolder: 2 Comparação
+		lineageTag: a232dff2-2385-49fa-8cc6-557223c5aa69
+
+	/// Diferenca em R$ para o mes anterior (vazio se nao houver mes anterior).
+	measure 'Variação vs Mês Anterior' = VAR anterior = [Vendas Mês Anterior] RETURN IF(NOT ISBLANK(anterior), [Vendas Líquidas] - anterior)
+		formatString: "R$"\ #,0.00
+		displayFolder: 2 Comparação
+		lineageTag: a9eb224b-c402-45c1-bc7b-ea9875f20cee
+
+	/// Diferenca percentual para o mes anterior.
+	measure 'Variação % vs Mês Anterior' = DIVIDE([Variação vs Mês Anterior], [Vendas Mês Anterior])
+		formatString: 0.0%
+		displayFolder: 2 Comparação
+		lineageTag: 5a446954-7e4c-49c4-8cac-79ba6ade23a1
+
+	/// Vendas liquidas no mesmo periodo do ano anterior.
+	measure 'Vendas Ano Anterior' = CALCULATE([Vendas Líquidas], SAMEPERIODLASTYEAR(dim_data[data]))
+		formatString: "R$"\ #,0.00
+		displayFolder: 2 Comparação
+		lineageTag: 5e3e14f5-8e84-4015-9d25-1d865a996f49
+
+	/// Ultima data com venda carregada. Mostrar no contexto do filtro.
+	measure 'Dados até' = CALCULATE(MAX(fato_vendas[movimento]), ALL(dim_data))
+		formatString: dd/mm/yyyy
+		displayFolder: 3 Contexto
+		lineageTag: 67df2d03-1e95-4d24-9370-bc44c49a0038
+
+	column cod_venda
+		dataType: decimal
+		isHidden
+		formatString: 0
+		lineageTag: 5d3c532d-5ac2-4770-9f01-935607dd5c44
+		summarizeBy: none
+		sourceColumn: cod_venda
+
+	column n_doc
+		dataType: decimal
+		isHidden
+		formatString: 0
+		lineageTag: 2a6fb5a7-3e83-401d-9053-2125f1fde2e0
+		summarizeBy: none
+		sourceColumn: n_doc
+
+	column cod_empresa
+		dataType: decimal
+		isHidden
+		formatString: 0
+		lineageTag: 409fe4dc-5329-4af1-90af-74d63712d92a
+		summarizeBy: none
+		sourceColumn: cod_empresa
+
+	column cod_produto
+		dataType: decimal
+		isHidden
+		formatString: 0
+		lineageTag: de155c89-ce58-4836-bc71-7862d2aaf577
+		summarizeBy: none
+		sourceColumn: cod_produto
+
+	column cod_vendedor
+		dataType: decimal
+		isHidden
+		formatString: 0
+		lineageTag: 9af90af2-f62a-47ac-9da0-bf6720ab2373
+		summarizeBy: none
+		sourceColumn: cod_vendedor
+
+	column cod_cliente
+		dataType: decimal
+		isHidden
+		formatString: 0
+		lineageTag: c4700c4a-8e8c-49e1-80a1-c6bfcccdf4f3
+		summarizeBy: none
+		sourceColumn: cod_cliente
+
+	column movimento
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: b02176f2-db69-412d-9a94-74018e53f0e3
+		summarizeBy: none
+		sourceColumn: movimento
+
+	column quantidade
+		dataType: decimal
+		isHidden
+		formatString: #,0.00
+		lineageTag: d987a1de-33eb-4069-a806-d6d214032f2e
+		summarizeBy: none
+		sourceColumn: quantidade
+
+	column venda_bruta
+		dataType: decimal
+		isHidden
+		formatString: #,0.00
+		lineageTag: 16d4b6fa-a559-4070-8410-a5c1f4c68df7
+		summarizeBy: none
+		sourceColumn: venda_bruta
+
+	column desconto
+		dataType: decimal
+		isHidden
+		formatString: #,0.00
+		lineageTag: 6775d749-61aa-487a-a2ef-246304cc46f3
+		summarizeBy: none
+		sourceColumn: desconto
+
+	column venda_liquida
+		dataType: decimal
+		isHidden
+		formatString: #,0.00
+		lineageTag: d1d9ac0e-7fb1-4238-9f79-5aa8befc16c9
+		summarizeBy: none
+		sourceColumn: venda_liquida
+
+	column data_carga
+		dataType: dateTime
+		isHidden
+		lineageTag: 8be22c1b-98fa-46ef-82ef-679f13be73ca
+		summarizeBy: none
+		sourceColumn: data_carga
+
+	partition fato_vendas = entity
+		mode: directLake
+		source
+			entityName: fato_vendas
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

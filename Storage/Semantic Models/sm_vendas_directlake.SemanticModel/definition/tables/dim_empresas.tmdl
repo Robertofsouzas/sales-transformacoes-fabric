@@ -1,0 +1,38 @@
+table dim_empresas
+	lineageTag: 53713a1c-1fd5-4f16-82e6-779b4b4a5c6d
+
+	column cod_empresa
+		dataType: decimal
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 8221e23c-22e2-4a37-9a41-b7b8c869155f
+		summarizeBy: none
+		sourceColumn: cod_empresa
+
+	column nome
+		dataType: string
+		lineageTag: 902a7d02-a814-484f-8e87-5fb860ca62a2
+		summarizeBy: none
+		sourceColumn: nome
+
+	column nome_fantasia
+		dataType: string
+		lineageTag: 20a930c3-016c-4c1c-8c3b-54f31b6bddaf
+		summarizeBy: none
+		sourceColumn: nome_fantasia
+
+	column data_carga
+		dataType: dateTime
+		isHidden
+		lineageTag: b443c3f3-2674-428b-89e4-11ad1feb1ed2
+		summarizeBy: none
+		sourceColumn: data_carga
+
+	partition dim_empresas = entity
+		mode: directLake
+		source
+			entityName: dim_empresas
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

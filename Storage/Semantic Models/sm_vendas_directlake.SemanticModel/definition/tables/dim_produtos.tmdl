@@ -1,0 +1,68 @@
+table dim_produtos
+	lineageTag: 0796c964-fc8e-488c-be9f-e2c823453512
+
+	column cod_produto
+		dataType: decimal
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: c57c280d-3337-4402-a21d-0c38eecf7f7e
+		summarizeBy: none
+		sourceColumn: cod_produto
+
+	column descricao
+		dataType: string
+		lineageTag: d6069db3-2079-4cf8-8c6f-49d928e77dcb
+		summarizeBy: none
+		sourceColumn: descricao
+
+	column descricao_reduzida
+		dataType: string
+		lineageTag: 4c287a08-6395-472d-978c-8812c045984b
+		summarizeBy: none
+		sourceColumn: descricao_reduzida
+
+	column familia_produto
+		dataType: string
+		lineageTag: d594b991-62ff-4b37-94c5-e2bc0b5983ea
+		summarizeBy: none
+		sourceColumn: familia_produto
+
+	column secao_produto
+		dataType: string
+		lineageTag: a42904c0-7249-44ca-9e04-57f1308ff17a
+		summarizeBy: none
+		sourceColumn: secao_produto
+
+	column grupo_produto
+		dataType: string
+		lineageTag: 208b931e-4467-49a9-800d-d4c951bfa0ab
+		summarizeBy: none
+		sourceColumn: grupo_produto
+
+	column subgrupo_produto
+		dataType: string
+		lineageTag: 163eb25a-99fc-4ee2-8907-e8b98297cf57
+		summarizeBy: none
+		sourceColumn: subgrupo_produto
+
+	column marca
+		dataType: string
+		lineageTag: dd1800ae-40cf-4c92-9423-e3003f391d0d
+		summarizeBy: none
+		sourceColumn: marca
+
+	column data_carga
+		dataType: dateTime
+		isHidden
+		lineageTag: 4cb1fa50-07b5-4502-9336-837957e3e919
+		summarizeBy: none
+		sourceColumn: data_carga
+
+	partition dim_produtos = entity
+		mode: directLake
+		source
+			entityName: dim_produtos
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+
