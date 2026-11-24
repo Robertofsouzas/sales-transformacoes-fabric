@@ -28,9 +28,10 @@ TIPOS_VALIDOS: set[str] = {
     "Notebook", "DataPipeline", "SemanticModel", "Report",
     "Lakehouse", "VariableLibrary", "SQLDatabase", "Environment",
 }
-# Tipos cujo Update Definition documenta validateOnly (conferido em 24/11/2026:
-# o exemplo oficial é Report; a página de Notebook não documenta a opção).
-SIMULAR_PERMITIDO: set[str] = {"Report"}
+# Modos. "verificar" resolve pipeline, estágios e itens e mostra o que seria
+# enviado, sem chamar o deploy. (Havia um modo "simular" com validateOnly, mas a
+# API respondeu InvalidOptions para Report em 24/11/2026: não é suportado.)
+MODOS: set[str] = {"verificar", "implantar"}
 
 LIMITE_NOTA = 1024
 
@@ -56,13 +57,8 @@ def ler_itens(texto: str) -> list[tuple[str, str]]:
 
 
 def checar_modo(modo: str, itens: list[tuple[str, str]]) -> None:
-    if modo not in {"simular", "implantar"}:
-        raise ValueError(f"modo '{modo}' inválido; use simular ou implantar")
-    if modo == "simular":
-        recusados = [f"{n}:{t}" for n, t in itens if t not in SIMULAR_PERMITIDO]
-        if recusados:
-            raise ValueError("simular (validateOnly) só está documentado para "
-                             f"{sorted(SIMULAR_PERMITIDO)}; recusado: {', '.join(recusados)}")
+    if modo not in MODOS:
+        raise ValueError(f"modo '{modo}' inválido; use {' ou '.join(sorted(MODOS))}")
 
 
 def montar_nota(motivo: str, sha: str, url_execucao: str, disparou: str, aprovou: str) -> str:
@@ -196,9 +192,13 @@ def implantar(api: Api, pipeline_nome: str, itens: list[tuple[str, str]], modo: 
         print(f"ERRO ao resolver itens: {erro}")
         return 1
     pedido = {"sourceStageId": origem, "targetStageId": destino, "items": pedidos, "note": nota}
-    if modo == "simular":
-        pedido["options"] = {"itemOptionsBySourceItemId": [
-            {"sourceItemId": p["sourceItemId"], "options": {"validateOnly": True}} for p in pedidos]}
+    if modo == "verificar":
+        print(f"Verificação OK: pipeline '{pipeline_nome}', estágios {ESTAGIO_ORIGEM} -> {ESTAGIO_DESTINO}, "
+              f"{len(pedidos)} item(ns) encontrado(s) no dev:")
+        for nome, tipo in itens:
+            print(f"  - {nome}:{tipo}")
+        print("Nada foi implantado (modo verificar).")
+        return 0
     try:
         resposta = chamar_com_retry(api, "POST", f"/deploymentPipelines/{pid}/deploy", pedido, dormir=dormir)
         if resposta.status not in (200, 202):
@@ -208,12 +208,15 @@ def implantar(api: Api, pipeline_nome: str, itens: list[tuple[str, str]], modo: 
                 print("A identidade de serviço não é aceita para algum item: " + ", ".join(f"{n}:{t}" for n, t in itens))
             return 1
         if resposta.status == 202:
-            local = _cabecalho(resposta, "Location")
-            if not local:
-                print("ERRO: a API aceitou o deploy mas não devolveu o Location da operação")
+            # Acompanha pelo ID da operação, no host do Fabric. O Location pode
+            # apontar para outro host (visto em 24/11/2026) e o token não sai do Fabric.
+            operacao = _cabecalho(resposta, "x-ms-operation-id")
+            if not operacao:
+                print("ERRO: a API aceitou o deploy mas não devolveu o x-ms-operation-id; confira no pipeline")
                 return 1
+            local = f"/operations/{operacao}"
             final = acompanhar(api, local, dormir=dormir)
-            detalhe = chamar_com_retry(api, "GET", _caminho(local) + "/result", dormir=dormir)
+            detalhe = chamar_com_retry(api, "GET", local + "/result", dormir=dormir)
             if detalhe.status == 200:
                 final = {**final, **detalhe.corpo}
         else:
@@ -233,7 +236,7 @@ def main(argv: list[str] | None = None) -> int:
     analisador = argparse.ArgumentParser(description="Deploy Dev -> Prod pelo pl_deploy_sales")
     analisador.add_argument("--itens", required=True, help="nome:Tipo,nome:Tipo")
     analisador.add_argument("--motivo", required=True)
-    analisador.add_argument("--modo", default="simular", choices=["simular", "implantar"])
+    analisador.add_argument("--modo", default="verificar", choices=sorted(MODOS))
     args = analisador.parse_args(argv)
     try:
         itens = ler_itens(args.itens)

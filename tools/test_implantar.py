@@ -34,12 +34,13 @@ class TesteItens(unittest.TestCase):
 
 
 class TesteModo(unittest.TestCase):
-    def test_simular_recusa_tipo_nao_documentado(self):
-        with self.assertRaisesRegex(ValueError, "validateOnly"):
-            checar_modo("simular", [("nb_gold_checks", "Notebook")])
+    def test_verificar_aceita_qualquer_tipo_valido(self):
+        checar_modo("verificar", [("nb_gold_checks", "Notebook"), ("rpt_vendas", "Report")])
 
-    def test_simular_aceita_report(self):
-        checar_modo("simular", [("rpt_vendas", "Report")])
+    def test_simular_nao_existe_mais(self):
+        # validateOnly foi recusado pela API (InvalidOptions) em 24/11/2026
+        with self.assertRaises(ValueError):
+            checar_modo("simular", [("rpt_vendas", "Report")])
 
     def test_implantar_aceita_qualquer_tipo_valido(self):
         checar_modo("implantar", [("nb_gold_checks", "Notebook")])
@@ -83,6 +84,7 @@ class ApiFalsa:
 
 PID, DEV, PRD, WS_DEV = "pipe-1", "stg-dev", "stg-prd", "ws-dev"
 ID_NB, ID_RPT = "id-nb-gold-checks", "id-rpt-vendas"
+HOST_ESTRANHO = "https://wabi-exemplo-redirect.analysis.windows.net"
 
 
 def api_padrao(deploy_final="Succeeded", erro_deploy=None, passos=None):
@@ -105,8 +107,10 @@ def api_padrao(deploy_final="Succeeded", erro_deploy=None, passos=None):
         rotas[("POST", f"/deploymentPipelines/{PID}/deploy")] = Resposta(
             status, {"errorCode": codigo, "message": "falhou"}, {})
     else:
+        # Como na execução real de 24/11: o Location aponta para outro host.
         rotas[("POST", f"/deploymentPipelines/{PID}/deploy")] = Resposta(
-            202, {}, {"Location": "https://api.fabric.microsoft.com/v1/operations/op-1", "Retry-After": "0"})
+            202, {}, {"Location": HOST_ESTRANHO + "/v1/operations/op-1",
+                      "x-ms-operation-id": "op-1", "Retry-After": "0"})
     return ApiFalsa(rotas)
 
 
@@ -149,14 +153,30 @@ class TesteCliente(unittest.TestCase):
         api = ApiFalsa(sequencia=[Resposta(200, {"status": "Running"}, {}), Resposta(200, {"status": "Succeeded"}, {})])
         self.assertEqual(acompanhar(api, "/op", dormir=lambda s: None)["status"], "Succeeded")
 
-    def test_implantar_simular_envia_validateonly(self):
+    def test_verificar_nao_chama_deploy(self):
         api = api_padrao()
-        rc = implantar(api, "pl_deploy_sales", [("rpt_vendas", "Report")], "simular", "n", dormir=lambda s: None)
+        rc = implantar(api, "pl_deploy_sales", [("rpt_vendas", "Report")], "verificar", "n", dormir=lambda s: None)
         self.assertEqual(rc, 0)
+        self.assertEqual(api.posts_de_deploy(), [])
+
+    def test_implantar_envia_estagios_itens_e_nota(self):
+        api = api_padrao()
+        implantar(api, "pl_deploy_sales", [("rpt_vendas", "Report")], "implantar", "n", dormir=lambda s: None)
         corpo = api.posts_de_deploy()[0][2]
-        self.assertEqual(corpo["options"]["itemOptionsBySourceItemId"],
-                         [{"sourceItemId": ID_RPT, "options": {"validateOnly": True}}])
         self.assertEqual((corpo["note"], corpo["sourceStageId"], corpo["targetStageId"]), ("n", DEV, PRD))
+        self.assertEqual(corpo["items"], [{"sourceItemId": ID_RPT, "itemType": "Report"}])
+
+    def test_acompanha_pelo_operation_id_e_ignora_host_do_location(self):
+        api = api_padrao()
+        rc = implantar(api, "pl_deploy_sales", [("nb_gold_checks", "Notebook")], "implantar", "n", dormir=lambda s: None)
+        self.assertEqual(rc, 0)
+        self.assertFalse(any(HOST_ESTRANHO in url for _, url, _ in api.chamadas))
+
+    def test_sem_operation_id_devolve_1(self):
+        api = api_padrao()
+        api.rotas[("POST", f"/deploymentPipelines/{PID}/deploy")] = Resposta(202, {}, {"Retry-After": "0"})
+        rc = implantar(api, "pl_deploy_sales", [("nb_gold_checks", "Notebook")], "implantar", "n", dormir=lambda s: None)
+        self.assertEqual(rc, 1)
 
     def test_implantar_real_nao_envia_validateonly(self):
         api = api_padrao()
