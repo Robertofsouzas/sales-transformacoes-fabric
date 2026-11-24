@@ -27,8 +27,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Testes do verificador
-        run: python -m unittest tools.test_validar_repo -v
+      - name: Testes do verificador e do script de deploy
+        run: python -m unittest tools.test_validar_repo tools.test_implantar -v
 
       - name: Verificar o repositório (R1 a R6)
         run: python tools/validar_repo.py .
