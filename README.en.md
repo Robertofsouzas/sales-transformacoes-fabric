@@ -15,8 +15,9 @@ Load configuration does not come from a spreadsheet: it comes from a control tab
 | Semantic model | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tables, **80 DAX measures** | `Storage/Semantic Models` |
 | Report | `rpt_vendas`: 3 pages that answer business questions | `Visualization/Reports` |
 | Environments | dev, feature and prod with Git, pull requests and a deployment pipeline | see below |
+| CI/CD automation | automatic pull request validation and approved deployments | in progress (phase D) |
 
-## Data architecture
+## 1. Data architecture
 
 <p align="center">
   <img src="docs/img/arquitetura-medalhao.svg" alt="Medallion architecture: SQL Server, Staging, Bronze, Silver, Gold, semantic model and report, with governance at the base (diagram labels in Portuguese)" width="100%">
@@ -33,19 +34,59 @@ The pipelines (`pl_Staging`, `pl_bronze`, `pl_silver`, `pl_gold`) are orchestrat
 
 Reusable functions, such as `safe_merge` (idempotent incremental load), live in `nb_functions`. `nb_delta_optimization` maintains the Delta tables (OPTIMIZE with V-Order and VACUUM) using native Spark SQL only.
 
-## The report: business questions, not just charts
+## 2. Loads driven by `db_control`
 
-Each page answers **one** question and follows the same reading order: a **title that states the conclusion**, the **cause**, the filter context, **KPIs with a reference** (previous month and same month last year), the main chart and the **next action**, with a rule computed from the data. Titles are DAX measures, so they update themselves when the data changes.
+`seeds/PipelineControl.seed.sql` inserts the control rows (40 today: Staging 13, Bronze 13, Silver 8, Gold 6) with a `MERGE` on the **layer + entity** key, so it can run many times without duplicating. The source database name is **not in the file**: it is passed as a parameter at run time.
 
-**1. Monthly result:** did sales go up or down, and why?
+```python
+from tools.run_seed import run_seed
+run_seed("<workspace name>", "<source database name>")
+```
+
+Requirements: Python, `pyodbc`, ODBC Driver 18 for SQL Server and an Azure CLI login (`az login`). `tools/test_run_seed.py` runs the seed twice and checks that the row count does not change.
+
+**New table = new rows in the seed, no code change:**
+
+1. Add the table's rows to `seeds/PipelineControl.seed.sql` (one per layer).
+2. For a Gold table, add one function to the `TRANSFORMS` dictionary in `nb_gold`.
+3. Open a pull request and promote through the environment flow; run the seed in each environment, then the pipelines.
+
+The pipelines iterate over `db_control` with a `ForEach`; the new row is picked up automatically.
+
+## 3. Data quality and resilience
+
+- **Quality as a test:** `nb_gold_checks` was written **before** the Gold layer (it failed first and passed afterwards) and runs in any environment.
+- `retry` on activities that depend on network or capacity, and `batchCount` to stay within the Spark session limit.
+- Idempotent loads: running again does not duplicate data.
+- Fault-tolerant Delta maintenance: one failing table does not block the others, and the notebook fails at the end listing which ones broke.
+
+## 4. Semantic model
+
+<p align="center">
+  <img src="docs/img/modelo-semantico.svg" alt="Star schema semantic model: fato_vendas in the center, five dimensions, 80 measures in six folders, read from lh_gold in Direct Lake on OneLake and consumed by rpt_vendas" width="100%">
+</p>
+
+`sm_vendas_directlake` is the **meaning** layer between the lakehouse and the report: it defines how tables relate and holds the **calculations** (measures), so a number is the same in every report.
+
+- **Direct Lake on OneLake:** the model reads the Delta files in `lh_gold` directly, **without copying** the data. A "refresh" only updates the reference to the table version (*framing*) and takes seconds. It is the mode Microsoft recommends for new models, and it does not fall back to DirectQuery.
+- **Star schema:** `fato_vendas` in the center and five dimensions with single-direction **one-to-many** relationships. `dim_data` is the model's date table.
+- **80 measures in 6 folders:** sales, comparison with the previous month and year, context, reversals, concentration (Pareto) and **report text**. The conclusion titles in the report are DAX measures, so they update themselves when the data changes.
+- **Good practices:** technical keys and `data_carga` hidden, explicit measures only, month and weekday sorted by number, pt-BR culture.
+- **Verified:** the net sales measure matches the Silver total, and every environment was checked with DAX queries after each deployment.
+
+## 5. The report: business questions, not just charts
+
+Each page answers **one** question and follows the same reading order: a **title that states the conclusion**, the **cause**, the filter context, **KPIs with a reference** (previous month and same month last year), the main chart and the **next action**, with a rule computed from the data.
+
+**Monthly result:** did sales go up or down, and why?
 
 <p align="center"><img src="docs/img/relatorio-p1-resultado-do-mes.png" alt="Monthly result page: conclusion title, four KPIs with reference, variance bridge by salesperson and next action" width="100%"></p>
 
-**2. Concentration:** who drives the revenue?
+**Concentration:** who drives the revenue?
 
 <p align="center"><img src="docs/img/relatorio-p2-concentracao.png" alt="Concentration page: salesperson Pareto, products ranked by sales and how many make up 80% of sales" width="100%"></p>
 
-**3. Reversals and discounts:** where are sales being reversed, and when did discounts spike?
+**Reversals and discounts:** where are sales being reversed, and when did discounts spike?
 
 <p align="center"><img src="docs/img/relatorio-p3-estornos-e-desconto.png" alt="Reversals and discounts page: monthly reversal rate with an alert threshold, monthly discount rate and reversed amount by salesperson" width="100%"></p>
 
@@ -56,7 +97,7 @@ Design decisions:
 - **Contrast measured, not eyeballed.** Every color was tested with the WCAG formula (text ≥ 4.5:1, charts ≥ 3:1). That is why the coral accent gets darker when used as text.
 - **Checked against DAX.** On-screen totals match independent DAX and SQL queries (for example, the variance bridge adds up exactly to the month's change).
 
-## Environments and change flow
+## 6. Environments and change flow
 
 <p align="center">
   <img src="docs/img/ambientes-fluxo.svg" alt="Change flow: feature, pull request, main on GitHub, Git update, dev, deployment with a note and prod (diagram labels in Portuguese)" width="100%">
@@ -68,55 +109,40 @@ Design decisions:
 - Git stores **definitions** (notebooks, pipelines, schemas, model, report), never **data**. Each environment is filled by running its own pipelines.
 - A fix in production also starts on a branch, goes through the pull request and dev, and only then reaches prod.
 
-## Per-environment parameters
+## 7. Per-environment configuration
 
-- **Pipelines:** the **Variable Library** (`vl_solucoes_fabric`) has one value set per environment (`dev`, `feature`, `prd`). The active set is a workspace setting and **is not stored in Git**.
-- **Semantic model:** Direct Lake **does not rebind itself** to the next environment's lakehouse. The source uses two M parameters (`p_workspace_id` and `p_lakehouse_id`); in prod, a deployment pipeline **parameter rule** points the model to the prod lakehouse. This was proven by re-reading the model definition after each deployment.
-- **Report:** deployed together with the model, it rebinds to the model in the same environment.
+<p align="center">
+  <img src="docs/img/parametrizacao.svg" alt="Per-environment configuration: Git stores neutral definitions; feature, dev and prod each get their own value set, model parameters, report binding and data" width="100%">
+</p>
 
-## Creating a new environment
+The code is the same in all three environments; what changes is the **configuration**, which is never hardcoded:
+
+- **Pipelines:** the **Variable Library** (`vl_solucoes_fabric`) has one value set per environment (`feature`, `dev`, `prd`). The active set is a workspace setting and **is not stored in Git**.
+- **Semantic model:** Direct Lake **does not rebind itself** to the next environment's lakehouse. The source uses two M parameters (`p_workspace_id` and `p_lakehouse_id`). In **prod**, a deployment pipeline **parameter rule** swaps the values on every deployment. In **dev**, the parameters are rebound after each update from Git. Both cases were proven by re-reading the model definition.
+- **Report:** Git only stores its path-based binding, and it rebinds to the model in its own environment.
+- **Data:** each environment runs its own seed and pipelines. Data never travels through Git.
+
+## 8. CI/CD automation
+
+In progress (phase D): automatic validation of every pull request and a deployment button on GitHub, with approval and a secretless service identity.
+
+## 9. Creating a new environment
 
 1. **Create the workspace** on the Fabric capacity.
 2. **Connect it to Git** (dev and feature) or **receive it through the deployment pipeline** (prod).
 3. **Activate the Variable Library value set** for that environment.
-4. **Run the `db_control` seed** (see below).
+4. **Run the `db_control` seed** (section 2).
 5. **Run the pipelines** one at a time: `pl_Staging`, `pl_bronze`, `pl_silver`, `pl_gold`.
 6. **Check data quality** with `nb_gold_checks`.
 
-## `db_control` seed
-
-`seeds/PipelineControl.seed.sql` inserts the control rows (40 today: Staging 13, Bronze 13, Silver 8, Gold 6) with a `MERGE` on the **layer + entity** key, so it can run many times without duplicating. The source database name is **not in the file**: it is passed as a parameter at run time.
-
-```python
-from tools.run_seed import run_seed
-run_seed("<workspace name>", "<source database name>")
-```
-
-Requirements: Python, `pyodbc`, ODBC Driver 18 for SQL Server and an Azure CLI login (`az login`). `tools/test_run_seed.py` runs the seed twice and checks that the row count does not change.
-
-## New table = new rows in the seed
-
-1. Add the table's rows to `seeds/PipelineControl.seed.sql` (one per layer).
-2. For a Gold table, add one function to the `TRANSFORMS` dictionary in `nb_gold`.
-3. Open a pull request and promote through the flow above; run the seed in each environment, then the pipelines.
-
-The pipelines iterate over `db_control` with a `ForEach`; the new row is picked up automatically.
-
-## Resilience and data quality
-
-- `retry` on activities that depend on network or capacity, and `batchCount` to stay within the Spark session limit.
-- Idempotent loads: running again does not duplicate data.
-- **Quality as a test:** `nb_gold_checks` was written **before** the Gold layer (it failed first and passed afterwards) and runs in any environment.
-- Fault-tolerant Delta maintenance: one failing table does not block the others, and the notebook fails at the end listing which ones broke.
-
-## Security and good practices
+## 10. Security and good practices
 
 - Public repository: **no passwords, tokens, connection strings or real system names**.
 - Least privilege: few admins; every access has an owner and a reason.
 - Read-only users for source connections.
 - Every production deployment has a note and a log entry.
 
-## Repository layout
+## 11. Repository layout
 
 <p align="center">
   <img src="docs/img/estrutura-repositorio.svg" alt="Repository layout: Environment, Processing, Storage and Visualization (Fabric items) plus seeds, tools and docs (supporting files)" width="100%">
@@ -142,4 +168,5 @@ Legacy items from the original project (`sm_solucoes-fabric_*`, `nb_semantic_mod
 - [Variable libraries](https://learn.microsoft.com/fabric/cicd/variable-library/variable-library-overview)
 - [Medallion architecture](https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture)
 - [Direct Lake](https://learn.microsoft.com/fabric/fundamentals/direct-lake-overview) and [M parameters with deployment pipelines](https://learn.microsoft.com/fabric/fundamentals/direct-lake-develop#use-m-parameters-with-deployment-pipelines)
+- [Star schema in Power BI](https://learn.microsoft.com/power-bi/guidance/star-schema)
 - [PBIR report format](https://learn.microsoft.com/power-bi/developer/projects/projects-report)

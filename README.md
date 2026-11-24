@@ -15,8 +15,9 @@ A configuração das cargas não vem de planilha: vem de uma tabela de controle 
 | Modelo semântico | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tabelas, **80 medidas** em DAX | `Storage/Semantic Models` |
 | Relatório | `rpt_vendas`: 3 páginas que respondem perguntas de negócio | `Visualization/Reports` |
 | Ambientes | dev, feature e prod com Git, pull request e pipeline de implantação | veja abaixo |
+| Automação de CI/CD | validação automática dos PRs e deploy com aprovação | em construção (fase D) |
 
-## Arquitetura de dados
+## 1. Arquitetura de dados
 
 <p align="center">
   <img src="docs/img/arquitetura-medalhao.svg" alt="Arquitetura medalhão: SQL Server, Staging, Bronze, Silver, Gold, modelo semântico e relatório, com governança na base" width="100%">
@@ -33,19 +34,59 @@ Os pipelines (`pl_Staging`, `pl_bronze`, `pl_silver`, `pl_gold`) são orquestrad
 
 Funções reutilizáveis, como o `safe_merge` (carga incremental idempotente), ficam em `nb_functions`. O `nb_delta_optimization` faz a manutenção das tabelas Delta (OPTIMIZE com V-Order e VACUUM) só com Spark SQL nativo.
 
-## O relatório: perguntas de negócio, não só gráficos
+## 2. Cargas guiadas pelo `db_control`
 
-Cada página responde **uma** pergunta e segue a mesma ordem de leitura: **título que conclui**, a **causa**, o contexto do filtro, **indicadores com referência** (mês anterior e mesmo mês do ano anterior), o gráfico principal e a **próxima ação**, com uma regra calculada dos dados. Os títulos são medidas DAX: mudam sozinhos quando os dados mudam.
+O arquivo `seeds/PipelineControl.seed.sql` insere as linhas de controle (40 hoje: Staging 13, Bronze 13, Silver 8, Gold 6) com `MERGE` pela chave **camada + entidade**: pode rodar várias vezes sem duplicar. O nome do banco de origem **não fica no arquivo**: entra como parâmetro na hora de rodar.
 
-**1. Resultado do mês:** as vendas subiram ou caíram, e por quê?
+```python
+from tools.run_seed import run_seed
+run_seed("<nome do workspace>", "<nome do banco de origem>")
+```
+
+Requisitos: Python, `pyodbc`, ODBC Driver 18 for SQL Server e login do Azure CLI (`az login`). O teste `tools/test_run_seed.py` roda o seed duas vezes e confirma que o total de linhas não muda.
+
+**Tabela nova = linhas novas no seed, sem mexer em código:**
+
+1. Acrescente as linhas da tabela no `seeds/PipelineControl.seed.sql` (uma por camada).
+2. Se for uma tabela Gold, acrescente uma função ao dicionário `TRANSFORMS` do `nb_gold`.
+3. Faça o pull request e promova pelo fluxo de ambientes; rode o seed em cada ambiente e depois os pipelines.
+
+Os pipelines percorrem o `db_control` com um `ForEach`; a linha nova passa a ser processada sozinha.
+
+## 3. Qualidade e resiliência
+
+- **Qualidade como teste:** o `nb_gold_checks` foi escrito **antes** do Gold (falhou primeiro e passou depois) e roda em qualquer ambiente.
+- `retry` nas atividades que dependem de rede ou de capacidade, e `batchCount` para não estourar o limite de sessões Spark.
+- Cargas idempotentes: rodar de novo não duplica dados.
+- Manutenção Delta tolerante a falhas: uma tabela com problema não impede as outras, e o notebook falha no fim listando quais deram erro.
+
+## 4. Modelo semântico
+
+<p align="center">
+  <img src="docs/img/modelo-semantico.svg" alt="Modelo semântico em estrela: fato_vendas no centro, cinco dimensões, 80 medidas em seis pastas, lido do lh_gold em Direct Lake on OneLake e consumido pelo rpt_vendas" width="100%">
+</p>
+
+O `sm_vendas_directlake` é a camada de **significado** entre o lakehouse e o relatório: diz como as tabelas se ligam e guarda as **contas** (medidas), para que um número saia igual em qualquer relatório.
+
+- **Direct Lake on OneLake:** o modelo lê os arquivos Delta do `lh_gold` direto, **sem copiar** os dados. O "refresh" só atualiza a referência à versão da tabela (*framing*) e leva segundos. É o modo que a Microsoft recomenda para modelos novos, e não cai para DirectQuery.
+- **Esquema em estrela:** `fato_vendas` no centro e cinco dimensões com relacionamentos **um-para-muitos** em sentido único. A `dim_data` é a tabela de datas do modelo.
+- **80 medidas em 6 pastas:** vendas, comparação com mês e ano anterior, contexto, estornos, concentração (Pareto) e **textos do relatório**. Os títulos que concluem no relatório são medidas DAX: mudam sozinhos quando os dados mudam.
+- **Boas práticas:** chaves técnicas e `data_carga` ocultas, só medidas explícitas, mês e dia da semana ordenados pelo número, cultura pt-BR.
+- **Verificado:** a medida Vendas Líquidas bate com a soma da Silver, e cada ambiente foi conferido por consultas DAX depois de cada implantação.
+
+## 5. O relatório: perguntas de negócio, não só gráficos
+
+Cada página responde **uma** pergunta e segue a mesma ordem de leitura: **título que conclui**, a **causa**, o contexto do filtro, **indicadores com referência** (mês anterior e mesmo mês do ano anterior), o gráfico principal e a **próxima ação**, com uma regra calculada dos dados.
+
+**Resultado do mês:** as vendas subiram ou caíram, e por quê?
 
 <p align="center"><img src="docs/img/relatorio-p1-resultado-do-mes.png" alt="Página Resultado do mês: título que conclui, quatro indicadores com referência, ponte de variação por vendedor e próxima ação" width="100%"></p>
 
-**2. Concentração:** quem concentra a receita?
+**Concentração:** quem concentra a receita?
 
 <p align="center"><img src="docs/img/relatorio-p2-concentracao.png" alt="Página Concentração: Pareto de vendedores, produtos do maior para o menor e quantos fazem 80% da venda" width="100%"></p>
 
-**3. Estornos e desconto:** onde as vendas são desfeitas e quando o desconto disparou?
+**Estornos e desconto:** onde as vendas são desfeitas e quando o desconto disparou?
 
 <p align="center"><img src="docs/img/relatorio-p3-estornos-e-desconto.png" alt="Página Estornos e desconto: estorno por mês com limiar de alerta, desconto por mês e valor estornado por vendedor" width="100%"></p>
 
@@ -56,7 +97,7 @@ Decisões de desenho:
 - **Contraste medido, não no olho.** Cada cor foi testada pela fórmula WCAG (texto ≥ 4,5:1, gráficos ≥ 3:1). Por isso o coral de destaque é mais escuro quando vira texto.
 - **Verificado contra o DAX.** Os totais da tela batem com consultas DAX e SQL independentes (por exemplo, a ponte de variação fecha exatamente na variação do mês).
 
-## Ambientes e fluxo de mudança
+## 6. Ambientes e fluxo de mudança
 
 <p align="center">
   <img src="docs/img/ambientes-fluxo.svg" alt="Fluxo de mudança: feature, pull request, main no GitHub, atualização do Git, dev, implantação com nota e prod. Correções em produção voltam a nascer numa branch." width="100%">
@@ -68,55 +109,40 @@ Decisões de desenho:
 - O Git guarda **definições** (notebooks, pipelines, esquemas, modelo, relatório), nunca os **dados**. Cada ambiente se enche rodando o próprio pipeline.
 - Corrigiu algo em produção? A correção também nasce numa branch, passa pelo pull request e pelo dev, e só então chega ao prod.
 
-## Parametrização por ambiente
+## 7. Parametrização por ambiente
 
-- **Pipelines:** a **Variable Library** (`vl_solucoes_fabric`) tem um conjunto de valores por ambiente (`dev`, `feature`, `prd`). O conjunto ativo é uma configuração do workspace e **não vai no Git**.
-- **Modelo semântico:** o Direct Lake **não se religa sozinho** ao lakehouse do ambiente seguinte. A fonte usa dois parâmetros M (`p_workspace_id` e `p_lakehouse_id`); no prod, uma **regra de parâmetro** do pipeline de implantação aponta o modelo para o lakehouse do prod. Isso foi provado relendo a definição do modelo depois de cada implantação.
-- **Relatório:** implantado junto com o modelo, ele se religa ao modelo do mesmo ambiente.
+<p align="center">
+  <img src="docs/img/parametrizacao.svg" alt="Parametrização por ambiente: o Git guarda definições neutras; feature, dev e prod recebem cada um o seu conjunto de valores, os parâmetros do modelo, a ligação do relatório e os próprios dados" width="100%">
+</p>
 
-## Como criar um ambiente novo
+O código é o mesmo nos três ambientes; o que muda é a **configuração**, que nunca fica fixa no código:
+
+- **Pipelines:** a **Variable Library** (`vl_solucoes_fabric`) tem um conjunto de valores por ambiente (`feature`, `dev`, `prd`). O conjunto ativo é uma configuração do workspace e **não vai no Git**.
+- **Modelo semântico:** o Direct Lake **não se religa sozinho** ao lakehouse do ambiente seguinte. A fonte usa dois parâmetros M (`p_workspace_id` e `p_lakehouse_id`). No **prod**, uma **regra de parâmetro** do pipeline de implantação troca os valores em todo deploy. No **dev**, os parâmetros são religados depois de cada atualização a partir do Git. Os dois casos foram provados relendo a definição do modelo.
+- **Relatório:** guarda no Git só a ligação por caminho e se religa sozinho ao modelo do mesmo ambiente.
+- **Dados:** cada ambiente roda o próprio seed e os próprios pipelines. Os dados nunca passam pelo Git.
+
+## 8. Automação de CI/CD
+
+Em construção (fase D): validação automática de todo pull request e um botão de implantação no GitHub, com aprovação e identidade de serviço sem senha guardada.
+
+## 9. Como criar um ambiente novo
 
 1. **Criar o workspace** na capacidade do Fabric.
 2. **Ligar ao Git** (dev e feature) ou **receber pelo pipeline de implantação** (prod).
 3. **Ativar o conjunto de valores** da Variable Library correspondente ao ambiente.
-4. **Rodar o seed** do `db_control` (veja abaixo).
+4. **Rodar o seed** do `db_control` (seção 2).
 5. **Rodar os pipelines**, um de cada vez: `pl_Staging`, `pl_bronze`, `pl_silver`, `pl_gold`.
 6. **Conferir a qualidade** com o `nb_gold_checks`.
 
-## Seed do `db_control`
-
-O arquivo `seeds/PipelineControl.seed.sql` insere as linhas de controle (40 hoje: Staging 13, Bronze 13, Silver 8, Gold 6) com `MERGE` pela chave **camada + entidade**: pode rodar várias vezes sem duplicar. O nome do banco de origem **não fica no arquivo**: entra como parâmetro na hora de rodar.
-
-```python
-from tools.run_seed import run_seed
-run_seed("<nome do workspace>", "<nome do banco de origem>")
-```
-
-Requisitos: Python, `pyodbc`, ODBC Driver 18 for SQL Server e login do Azure CLI (`az login`). O teste `tools/test_run_seed.py` roda o seed duas vezes e confirma que o total de linhas não muda.
-
-## Tabela nova = linhas novas no seed
-
-1. Acrescente as linhas da tabela no `seeds/PipelineControl.seed.sql` (uma por camada).
-2. Se for uma tabela Gold, acrescente uma função ao dicionário `TRANSFORMS` do `nb_gold`.
-3. Faça o pull request e promova pelo fluxo acima; rode o seed em cada ambiente e depois os pipelines.
-
-Os pipelines percorrem o `db_control` com um `ForEach`; a linha nova passa a ser processada sozinha.
-
-## Resiliência e qualidade
-
-- `retry` nas atividades que dependem de rede ou de capacidade, e `batchCount` para não estourar o limite de sessões Spark.
-- Cargas idempotentes: rodar de novo não duplica dados.
-- **Qualidade como teste:** o `nb_gold_checks` foi escrito **antes** do Gold (falhou primeiro e passou depois) e roda em qualquer ambiente.
-- Manutenção Delta tolerante a falhas: uma tabela com problema não impede as outras, e o notebook falha no fim listando quais deram erro.
-
-## Segurança e boas práticas
+## 10. Segurança e boas práticas
 
 - Repositório público: **sem senhas, tokens, connection strings ou nomes de sistemas reais**.
 - Privilégio mínimo: poucos administradores; cada acesso com dono e motivo.
 - Conexões à origem com usuário de leitura apenas.
 - Toda implantação em produção tem nota e registro.
 
-## Estrutura do repositório
+## 11. Estrutura do repositório
 
 <p align="center">
   <img src="docs/img/estrutura-repositorio.svg" alt="Estrutura do repositório: Environment, Processing, Storage e Visualization (itens do Fabric) e seeds, tools e docs (apoio)" width="100%">
@@ -142,4 +168,5 @@ Itens legados do projeto original (`sm_solucoes-fabric_*`, `nb_semantic_models`,
 - [Variable libraries](https://learn.microsoft.com/fabric/cicd/variable-library/variable-library-overview)
 - [Arquitetura medalhão](https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture)
 - [Direct Lake](https://learn.microsoft.com/fabric/fundamentals/direct-lake-overview) e [parâmetros M com pipelines de implantação](https://learn.microsoft.com/fabric/fundamentals/direct-lake-develop#use-m-parameters-with-deployment-pipelines)
+- [Esquema em estrela no Power BI](https://learn.microsoft.com/power-bi/guidance/star-schema)
 - [Formato PBIR do relatório](https://learn.microsoft.com/power-bi/developer/projects/projects-report)

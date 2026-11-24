@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="100%" role="img" aria-labelledby="t d">
+  <title id="t">Parametrização por ambiente / Per-environment configuration</title>
+  <desc id="d">O Git guarda definições neutras; cada ambiente (feature, dev, prod) recebe a própria configuração: conjunto de valores da Variable Library, parâmetros do modelo semântico, ligação do relatório e dados do db_control.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1620"/><stop offset="1" stop-color="#0f2230"/></linearGradient>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+    <marker id="arCy" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#4cc9f0"/></marker>
+  </defs>
+  <style>
+    text{font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
+    .eyebrow{font-size:12px;letter-spacing:.22em;fill:#4cc9f0;font-weight:700}
+    .title{font-size:30px;fill:#fff;font-weight:700}
+    .sub{font-size:14px;fill:#8fa6b8}
+    .env{font-size:15px;font-weight:800;letter-spacing:.16em}
+    .envs{font-size:11px;fill:#8fa6b8}
+    .rowt{font-size:13px;fill:#fff;font-weight:700}
+    .rows{font-size:11px;fill:#8fa6b8}
+    .val{font-family:Consolas,"Cascadia Code",Menlo,monospace;font-size:12px;fill:#fff;font-weight:700}
+    .how{font-size:11.5px;fill:#d7e3ee}
+    .flow{stroke-dasharray:6 6;animation:dash 1.4s linear infinite}
+    @keyframes dash{to{stroke-dashoffset:-24}}
+    @media (prefers-reduced-motion:reduce){.flow{animation:none}}
+  </style>
+  <rect width="1280" height="640" rx="20" fill="url(#bg)"/>
+
+  <text class="eyebrow" x="40" y="52">PARAMETRIZAÇÃO POR AMBIENTE · PER-ENVIRONMENT CONFIGURATION</text>
+  <text class="title" x="40" y="90">O código é o mesmo; a configuração é de cada ambiente</text>
+  <text class="sub" x="40" y="116">O Git guarda definições neutras. Cada ambiente recebe os próprios valores, sem nenhum ID fixo no código. · Same code, per-environment values.</text>
+
+  <!-- Git -->
+  <g filter="url(#sh)"><rect x="40" y="140" width="210" height="64" rx="12" fill="#112b3b" stroke="#1f5a73"/></g>
+  <text class="rowt" x="58" y="166">Git · main</text>
+  <text class="rows" x="58" y="186">definições, nunca dados</text>
+  <path class="flow" d="M252 172 H282" stroke="#4cc9f0" stroke-width="2.2" fill="none" marker-end="url(#arCy)"/>
+
+  <!-- Cabecalhos dos ambientes -->
+  <g filter="url(#sh)">
+    <rect x="290" y="140" width="306" height="64" rx="12" fill="#14192f" stroke="#34397a"/>
+    <rect x="612" y="140" width="306" height="64" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="934" y="140" width="306" height="64" rx="12" fill="#13222e" stroke="#8a6a1f"/>
+  </g>
+  <rect x="290" y="140" width="306" height="5" rx="2.5" fill="#9b87ff"/>
+  <rect x="612" y="140" width="306" height="5" rx="2.5" fill="#4cc9f0"/>
+  <rect x="934" y="140" width="306" height="5" rx="2.5" fill="#f6cd62"/>
+  <text class="env" x="310" y="172" fill="#9b87ff">FEATURE</text><text class="envs" x="310" y="192">branch de trabalho · Git</text>
+  <text class="env" x="632" y="172" fill="#4cc9f0">DEV</text><text class="envs" x="632" y="192">ligado à main · Git</text>
+  <text class="env" x="954" y="172" fill="#f6cd62">PROD</text><text class="envs" x="954" y="192">sem Git · só pelo pipeline de implantação</text>
+
+  <!-- Linha 1: pipelines -->
+  <g filter="url(#sh)">
+    <rect x="40" y="220" width="210" height="88" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="290" y="220" width="306" height="88" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="612" y="220" width="306" height="88" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="934" y="220" width="306" height="88" rx="12" fill="#13222e" stroke="#1b303f"/>
+  </g>
+  <text class="rowt" x="58" y="250">Pipelines</text>
+  <text class="rows" x="58" y="270">Variable Library</text>
+  <text class="rows" x="58" y="288">vl_solucoes_fabric</text>
+  <text class="val" x="310" y="254">conjunto feature</text><text class="how" x="310" y="278">ativado no workspace</text><text class="rows" x="310" y="296">fora do Git · outside Git</text>
+  <text class="val" x="632" y="254">conjunto dev</text><text class="how" x="632" y="278">ativado no workspace</text><text class="rows" x="632" y="296">fora do Git · outside Git</text>
+  <text class="val" x="954" y="254">conjunto prd</text><text class="how" x="954" y="278">ativado no workspace</text><text class="rows" x="954" y="296">fora do Git · outside Git</text>
+
+  <!-- Linha 2: modelo -->
+  <g filter="url(#sh)">
+    <rect x="40" y="320" width="210" height="104" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="290" y="320" width="306" height="104" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="612" y="320" width="306" height="104" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="934" y="320" width="306" height="104" rx="12" fill="#2a2412" stroke="#d49a1e"/>
+  </g>
+  <text class="rowt" x="58" y="350">Modelo semântico</text>
+  <text class="rows" x="58" y="370">parâmetros M</text>
+  <text class="rows" x="58" y="388">p_workspace_id</text>
+  <text class="rows" x="58" y="406">p_lakehouse_id</text>
+  <text class="val" x="310" y="354">valores do Git</text><text class="how" x="310" y="378">o lakehouse do feature</text><text class="rows" x="310" y="398">ponto de partida neutro</text>
+  <text class="val" x="632" y="354">religado após o Git</text><text class="how" x="632" y="378">UpdateParameters depois de</text><text class="how" x="632" y="396">cada atualização a partir do Git</text><text class="rows" x="632" y="414">passo manual (candidato a automação)</text>
+  <text class="val" x="954" y="354">regra de parâmetro</text><text class="how" x="954" y="378">o pipeline de implantação troca os</text><text class="how" x="954" y="396">valores em todo deploy, sozinho</text><text class="rows" x="954" y="414" fill="#f6cd62">provado relendo a definição</text>
+
+  <!-- Linha 3: relatorio -->
+  <g filter="url(#sh)">
+    <rect x="40" y="436" width="210" height="72" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="290" y="436" width="950" height="72" rx="12" fill="#13222e" stroke="#1b303f"/>
+  </g>
+  <text class="rowt" x="58" y="466">Relatório</text>
+  <text class="rows" x="58" y="486">rpt_vendas</text>
+  <text class="val" x="310" y="466">ligação por caminho no Git; religado sozinho ao modelo do mesmo ambiente</text>
+  <text class="how" x="310" y="488">Report binds to the semantic model of its own environment (proved in dev and prod)</text>
+
+  <!-- Linha 4: dados -->
+  <g filter="url(#sh)">
+    <rect x="40" y="520" width="210" height="80" rx="12" fill="#13222e" stroke="#1b303f"/>
+    <rect x="290" y="520" width="950" height="80" rx="12" fill="#13222e" stroke="#1b303f"/>
+  </g>
+  <rect x="40" y="520" width="4" height="80" rx="2" fill="#3ddc97"/>
+  <text class="rowt" x="58" y="550">Dados</text>
+  <text class="rows" x="58" y="570">db_control + lakehouses</text>
+  <text class="val" x="310" y="550">cada ambiente roda o próprio seed e os próprios pipelines</text>
+  <text class="how" x="310" y="572">O seed é idempotente (MERGE) e o nome do banco de origem entra só na hora de rodar.</text>
+  <text class="rows" x="310" y="590">Data never travels through Git: each environment loads itself.</text>
+</svg>
