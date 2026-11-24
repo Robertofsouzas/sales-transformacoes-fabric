@@ -73,6 +73,391 @@ table fato_vendas
 		displayFolder: 3 Contexto
 		lineageTag: 67df2d03-1e95-4d24-9370-bc44c49a0038
 
+	/// Soma das linhas com venda liquida positiva.
+	measure 'Vendas Positivas' = CALCULATE(SUM(fato_vendas[venda_liquida]), fato_vendas[venda_liquida] > 0)
+		formatString: "R$"\ #,0.00
+		displayFolder: 4 Estornos
+		lineageTag: ee153d6a-0ac2-4e61-95d3-1c3b9d1c9247
+
+	/// Soma das linhas com venda liquida NEGATIVA (estornos). Valor negativo. Semantica de negocio (devolucao, cancelamento ou ajuste) a confirmar.
+	measure Estornos = CALCULATE(SUM(fato_vendas[venda_liquida]), fato_vendas[venda_liquida] < 0)
+		formatString: "R$"\ #,0.00
+		displayFolder: 4 Estornos
+		lineageTag: b99a6808-8e3e-4257-b1ca-c85f84c3dd6e
+
+	/// Quantidade de linhas com venda liquida negativa.
+	measure 'Linhas de Estorno' = CALCULATE(COUNTROWS(fato_vendas), fato_vendas[venda_liquida] < 0)
+		formatString: #,0
+		displayFolder: 4 Estornos
+		lineageTag: d7698e26-04db-4cf7-a392-6395344d593b
+
+	/// Estornos como percentual das vendas positivas.
+	measure 'Estorno %' = DIVIDE(-[Estornos], [Vendas Positivas])
+		formatString: 0.0%
+		displayFolder: 4 Estornos
+		lineageTag: c541733d-7f73-4c3f-acba-de7620b5099f
+
+	/// Estorno % no mes anterior ao periodo selecionado.
+	measure 'Estorno % Mês Anterior' = CALCULATE([Estorno %], DATEADD(dim_data[data], -1, MONTH))
+		formatString: 0.0%
+		displayFolder: 4 Estornos
+		lineageTag: 6d18e57c-b80a-4f05-8592-637664caa3c2
+
+	/// Limiar derivado dos dados: media mensal do Estorno % mais 1 desvio padrao. Meses acima dele disparam a regra de investigacao.
+	measure 'Limiar de Estorno %' =
+			VAR meses = CALCULATETABLE(ADDCOLUMNS(VALUES(dim_data[ano_mes]), "@e", [Estorno %]), ALL(dim_data))
+			VAR validos = FILTER(meses, NOT ISBLANK([@e]))
+			RETURN AVERAGEX(validos, [@e]) + STDEVX.P(validos, [@e])
+		formatString: 0.0%
+		displayFolder: 4 Estornos
+		lineageTag: 912b9c97-6882-4db3-a4b0-3c141fb90c4c
+
+	/// Diferenca percentual para o mesmo periodo do ano anterior.
+	measure 'Variação % vs Ano Anterior' = DIVIDE([Vendas Líquidas] - [Vendas Ano Anterior], [Vendas Ano Anterior])
+		formatString: 0.0%
+		displayFolder: 2 Comparação
+		lineageTag: c99a0d94-25c8-4b9e-94d7-b7e9fc0a9d9d
+
+	/// Documentos no mesmo periodo do ano anterior.
+	measure 'Documentos Ano Anterior' = CALCULATE([Documentos], SAMEPERIODLASTYEAR(dim_data[data]))
+		formatString: #,0
+		displayFolder: 2 Comparação
+		lineageTag: af31eda1-da9e-469b-bb18-28ad39e77297
+
+	/// Diferenca percentual de documentos para o ano anterior.
+	measure 'Variação Documentos % vs Ano Anterior' = DIVIDE([Documentos] - [Documentos Ano Anterior], [Documentos Ano Anterior])
+		formatString: 0.0%
+		displayFolder: 2 Comparação
+		lineageTag: 8d70b1dd-f3ee-4cfa-8b9c-80554dffd3bb
+
+	/// Ticket medio no mesmo periodo do ano anterior.
+	measure 'Ticket Médio Ano Anterior' = CALCULATE([Ticket Médio], SAMEPERIODLASTYEAR(dim_data[data]))
+		formatString: "R$"\ #,0.00
+		displayFolder: 2 Comparação
+		lineageTag: e18b8fa4-59b3-45c7-a5a5-ca500699f1ab
+
+	/// Diferenca percentual do ticket medio para o ano anterior.
+	measure 'Variação Ticket % vs Ano Anterior' = DIVIDE([Ticket Médio] - [Ticket Médio Ano Anterior], [Ticket Médio Ano Anterior])
+		formatString: 0.0%
+		displayFolder: 2 Comparação
+		lineageTag: bade5639-02d7-4324-87c8-555a93ed07db
+
+	/// Desconto % no mes anterior ao periodo selecionado.
+	measure 'Desconto % Mês Anterior' = CALCULATE([Desconto %], DATEADD(dim_data[data], -1, MONTH))
+		formatString: 0.0%
+		displayFolder: 2 Comparação
+		lineageTag: 74d91e28-9cc9-41bf-af4b-fa6905e111a4
+
+	/// Percentual acumulado da venda liquida, do maior para o menor (descricao). Base do grafico de Pareto.
+	measure 'Venda Acumulada % Produtos' =
+			VAR atual = [Vendas Líquidas]
+			VAR total = CALCULATE([Vendas Líquidas], ALLSELECTED(dim_produtos))
+			VAR acum = CALCULATE([Vendas Líquidas], FILTER(ALLSELECTED(dim_produtos[descricao]), [Vendas Líquidas] >= atual))
+			RETURN IF(NOT ISBLANK(atual), DIVIDE(acum, total))
+		formatString: 0.0%
+		displayFolder: 5 Concentração
+		lineageTag: 870b74e5-a665-4de9-9e86-5db5474d9d48
+
+	/// Percentual acumulado da venda liquida, do maior para o menor (nome). Base do grafico de Pareto.
+	measure 'Venda Acumulada % Vendedores' =
+			VAR atual = [Vendas Líquidas]
+			VAR total = CALCULATE([Vendas Líquidas], ALLSELECTED(dim_vendedores))
+			VAR acum = CALCULATE([Vendas Líquidas], FILTER(ALLSELECTED(dim_vendedores[nome]), [Vendas Líquidas] >= atual))
+			RETURN IF(NOT ISBLANK(atual), DIVIDE(acum, total))
+		formatString: 0.0%
+		displayFolder: 5 Concentração
+		lineageTag: d8c7383d-2c1c-4a7b-a008-98db03d40586
+
+	/// Quantos produtos fazem 80% da venda liquida no periodo selecionado.
+	measure 'Produtos para 80%' =
+			VAR tab = ADDCOLUMNS(SUMMARIZE(fato_vendas, dim_produtos[cod_produto]), "@v", [Vendas Líquidas])
+			VAR total = SUMX(tab, [@v])
+			RETURN COUNTROWS(FILTER(tab, VAR cur = [@v] RETURN SUMX(FILTER(tab, [@v] >= cur), [@v]) - cur < 0.8 * total))
+		formatString: #,0
+		displayFolder: 5 Concentração
+		lineageTag: 29909053-7436-4db8-917b-8df37fdf00c7
+
+	/// Quantos clientes fazem 80% da venda liquida no periodo selecionado.
+	measure 'Clientes para 80%' =
+			VAR tab = ADDCOLUMNS(SUMMARIZE(fato_vendas, dim_clientes[cod_cliente]), "@v", [Vendas Líquidas])
+			VAR total = SUMX(tab, [@v])
+			RETURN COUNTROWS(FILTER(tab, VAR cur = [@v] RETURN SUMX(FILTER(tab, [@v] >= cur), [@v]) - cur < 0.8 * total))
+		formatString: #,0
+		displayFolder: 5 Concentração
+		lineageTag: 9a12f500-3fda-42dc-813b-5b02191ceb6f
+
+	/// Quantos vendedores fazem 80% da venda liquida no periodo selecionado.
+	measure 'Vendedores para 80%' =
+			VAR tab = ADDCOLUMNS(SUMMARIZE(fato_vendas, dim_vendedores[cod_vendedor]), "@v", [Vendas Líquidas])
+			VAR total = SUMX(tab, [@v])
+			RETURN COUNTROWS(FILTER(tab, VAR cur = [@v] RETURN SUMX(FILTER(tab, [@v] >= cur), [@v]) - cur < 0.8 * total))
+		formatString: #,0
+		displayFolder: 5 Concentração
+		lineageTag: 129f50ab-c069-4ae4-a727-fde3ce78318c
+
+	/// Vendedores com linhas de venda no periodo.
+	measure 'Vendedores Ativos' = DISTINCTCOUNT(fato_vendas[cod_vendedor])
+		formatString: #,0
+		displayFolder: 6 Textos do relatório
+		lineageTag: b554812a-13ac-4c3b-9e1d-33defbfe8387
+
+	/// Produtos com linhas de venda no periodo.
+	measure 'Produtos Ativos' = DISTINCTCOUNT(fato_vendas[cod_produto])
+		formatString: #,0
+		displayFolder: 6 Textos do relatório
+		lineageTag: 9bc8ea98-683e-41c1-bb29-a571fd8424ab
+
+	/// Clientes com linhas de venda no periodo.
+	measure 'Clientes Ativos' = DISTINCTCOUNT(fato_vendas[cod_cliente])
+		formatString: #,0
+		displayFolder: 6 Textos do relatório
+		lineageTag: 251ce77a-a363-4271-850b-cc29299ae33d
+
+	/// Nome do mes selecionado (ex.: Setembro/2020).
+	measure 'Txt Mês' =
+			VAR a = SELECTEDVALUE(dim_data[ano])
+			VAR mes = SELECTEDVALUE(dim_data[nome_mes])
+			RETURN IF(NOT ISBLANK(mes), mes & "/" & a, "período selecionado")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 67e4751a-ced0-4806-849e-4fb5dee5f114
+
+	/// Titulo que conclui da pagina 1.
+	measure 'Txt P1 Título' =
+			VAR vm = [Variação % vs Mês Anterior]
+			VAR va = [Variação % vs Ano Anterior]
+			VAR ano = SELECTEDVALUE(dim_data[ano])
+			RETURN [Txt Mês] & " vendeu R$ " & FORMAT([Vendas Líquidas] / 1000000, "0.00", "pt-BR") & " mi: "
+			    & FORMAT(vm, "+0.0%;-0.0%", "pt-BR") & " sobre o mês anterior"
+			    & IF(NOT ISBLANK(va), IF(SIGN(vm) = SIGN(va), " e ", ", mas ") & FORMAT(va, "+0.0%;-0.0%", "pt-BR") & " sobre o mesmo mês de " & (ano - 1))
+		displayFolder: 6 Textos do relatório
+		lineageTag: 00815b9e-505a-4b35-ae63-a502eda866d8
+
+	/// Subtitulo com a causa da pagina 1: o vendedor que mais explica a variacao.
+	measure 'Txt P1 Causa' =
+			VAR tab = ADDCOLUMNS(ALL(dim_vendedores[nome]), "@v", [Variação Ponte])
+			VAR principal = TOPN(1, FILTER(tab, NOT ISBLANK([@v])), ABS([@v]), DESC)
+			VAR nome = MAXX(principal, dim_vendedores[nome])
+			VAR v = MAXX(principal, [@v])
+			VAR share = DIVIDE(v, [Variação vs Mês Anterior])
+			RETURN nome & " responde por " & FORMAT(share, "0%", "pt-BR") & " da variação do mês (" & FORMAT(v, "+#,0;-#,0", "pt-BR") & " R$). Documentos "
+			    & FORMAT([Variação Documentos % vs Ano Anterior], "+0%;-0%", "pt-BR") & " e ticket médio " & FORMAT([Variação Ticket % vs Ano Anterior], "+0%;-0%", "pt-BR") & " sobre o ano anterior."
+		displayFolder: 6 Textos do relatório
+		lineageTag: 54675269-3065-40bf-a0a4-60a1cb4734c4
+
+	/// Contexto do filtro da pagina 1.
+	measure 'Txt P1 Contexto' = [Txt Mês] & " · mês completo · dados até " & FORMAT([Dados até], "dd/mm/yyyy", "pt-BR") & " · referência: mês anterior e mesmo mês do ano anterior"
+		displayFolder: 6 Textos do relatório
+		lineageTag: bd47b0c8-54c6-41f2-9bd0-037d268d2f67
+
+	/// Referencia do cartao de vendas.
+	measure 'Txt Ref Vendas' = IF([Variação % vs Mês Anterior] >= 0, "▲ ", "▼ ") & FORMAT(ABS([Variação % vs Mês Anterior]), "0.0%", "pt-BR") & " vs mês anterior   ·   " & IF([Variação % vs Ano Anterior] >= 0, "▲ ", "▼ ") & FORMAT(ABS([Variação % vs Ano Anterior]), "0.0%", "pt-BR") & " vs ano anterior"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 88f1a876-060a-41c5-8add-ef48b3a31e9a
+
+	/// Referencia do cartao de documentos.
+	measure 'Txt Ref Documentos' = IF([Variação Documentos % vs Ano Anterior] >= 0, "▲ ", "▼ ") & FORMAT(ABS([Variação Documentos % vs Ano Anterior]), "0.0%", "pt-BR") & " vs ano anterior (" & FORMAT([Documentos Ano Anterior], "#,0", "pt-BR") & ")"
+		displayFolder: 6 Textos do relatório
+		lineageTag: c9bf1c47-11ba-469d-9e11-8caa2b208782
+
+	/// Referencia do cartao de ticket medio.
+	measure 'Txt Ref Ticket' = IF([Variação Ticket % vs Ano Anterior] >= 0, "▲ ", "▼ ") & FORMAT(ABS([Variação Ticket % vs Ano Anterior]), "0.0%", "pt-BR") & " vs ano anterior (R$ " & FORMAT([Ticket Médio Ano Anterior], "#,0", "pt-BR") & ")"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 931f5684-3c4c-413b-99b5-088630ce448d
+
+	/// Referencia do cartao de estorno.
+	measure 'Txt Ref Estorno' =
+			VAR d = ([Estorno %] - [Estorno % Mês Anterior]) * 100
+			RETURN IF(d >= 0, "▲ ", "▼ ") & FORMAT(ABS(d), "0.0", "pt-BR") & " p.p. vs mês anterior"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 207f1147-2911-42e3-8aef-eaaa77e41032
+
+	/// Verde = melhor, vermelho = pior (vendas vs mes anterior).
+	measure 'Cor Ref Vendas' = IF([Variação % vs Mês Anterior] >= 0, "#3DD68C", "#FF6B6B")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 2ef6cae8-127d-498a-a0aa-49d54316bf18
+
+	/// Verde = melhor, vermelho = pior (documentos vs ano anterior).
+	measure 'Cor Ref Documentos' = IF([Variação Documentos % vs Ano Anterior] >= 0, "#3DD68C", "#FF6B6B")
+		displayFolder: 6 Textos do relatório
+		lineageTag: e6a327f5-b2b8-4644-90ec-47c0dc96ca4e
+
+	/// Verde = melhor, vermelho = pior (ticket vs ano anterior).
+	measure 'Cor Ref Ticket' = IF([Variação Ticket % vs Ano Anterior] >= 0, "#3DD68C", "#FF6B6B")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 55b73a4b-2146-49a7-a8e0-66acf744ca06
+
+	/// Estorno maior = pior (vermelho).
+	measure 'Cor Ref Estorno' = IF([Estorno %] > [Estorno % Mês Anterior], "#FF6B6B", "#3DD68C")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 493ea609-0565-4e45-adc3-e860f3015363
+
+	/// Proxima acao da pagina 1: regra, valor e responsavel.
+	measure 'Txt P1 Ação' =
+			VAR tab = ADDCOLUMNS(ALL(dim_vendedores[nome]), "@v", [Variação Ponte])
+			VAR principal = TOPN(1, FILTER(tab, NOT ISBLANK([@v])), ABS([@v]), DESC)
+			VAR nome = MAXX(principal, dim_vendedores[nome])
+			VAR share = DIVIDE(MAXX(principal, [@v]), [Variação vs Mês Anterior])
+			RETURN IF(share > 0.5,
+			    "Regra disparada (limiar de exemplo: 50%): " & nome & " explica " & FORMAT(share, "0%", "pt-BR") & " da variação do mês. Revisar a dependência desse vendedor (carteira e metas). Responsável: a definir pela empresa.",
+			    "Regra não disparada: nenhum vendedor explica mais de 50% da variação do mês (limiar de exemplo).")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 75ca268d-eb5e-4a7c-9dad-3846e9faf548
+
+	/// Titulo que conclui da pagina 2.
+	measure 'Txt P2 Título' = [Vendedores para 80%] & " de " & [Vendedores Ativos] & " vendedores e " & [Produtos para 80%] & " de " & [Produtos Ativos] & " produtos fazem 80% da venda líquida"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 790a063a-1263-46ad-ba01-65ec8d097224
+
+	/// Subtitulo da pagina 2.
+	measure 'Txt P2 Causa' =
+			VAR tab = ADDCOLUMNS(ALL(dim_vendedores[nome]), "@v", [Vendas Líquidas])
+			VAR principal = TOPN(1, FILTER(tab, NOT ISBLANK([@v])), [@v], DESC)
+			RETURN "Clientes: " & [Clientes para 80%] & " de " & [Clientes Ativos] & " (" & FORMAT(DIVIDE([Clientes para 80%], [Clientes Ativos]), "0%", "pt-BR") & "). Maior vendedor: " & MAXX(principal, dim_vendedores[nome]) & ", com " & FORMAT(DIVIDE(MAXX(principal, [@v]), [Vendas Líquidas]), "0%", "pt-BR") & " da venda líquida."
+		displayFolder: 6 Textos do relatório
+		lineageTag: bd6c7edd-d319-439e-974f-372fbf10c554
+
+	/// Contexto da pagina 2.
+	measure 'Txt P2 Contexto' = "Período completo: " & FORMAT(MIN(fato_vendas[movimento]), "dd/mm/yyyy", "pt-BR") & " a " & FORMAT([Dados até], "dd/mm/yyyy", "pt-BR") & " · venda líquida já abate os estornos"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 60c2bf1f-7eb5-4ffd-a970-00baa3dc9390
+
+	/// Proxima acao da pagina 2.
+	measure 'Txt P2 Ação' =
+			VAR pct = DIVIDE([Clientes para 80%], [Clientes Ativos])
+			RETURN IF(pct < 0.15, "Regra disparada (limiar de exemplo: 15%): " & FORMAT(pct, "0%", "pt-BR") & " dos clientes fazem 80% da venda. Plano de relacionamento para os clientes-chave. Responsável: a definir pela empresa.",
+			    "Regra não disparada: a venda está distribuída por mais de 15% dos clientes (limiar de exemplo).")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 8b4f1284-6f8e-4e57-9465-f8c32764d3cb
+
+	/// Titulo que conclui da pagina 3.
+	measure 'Txt P3 Título' =
+			VAR meses = FILTER(CALCULATETABLE(ADDCOLUMNS(VALUES(dim_data[ano_mes]), "@e", [Estorno %]), ALL(dim_data)), NOT ISBLANK([@e]) && [@e] > [Limiar de Estorno %])
+			RETURN "Estornos passaram de " & FORMAT([Limiar de Estorno %], "0.0%", "pt-BR") & " das vendas em " & CONCATENATEX(meses, dim_data[ano_mes], ", ", dim_data[ano_mes], ASC)
+		displayFolder: 6 Textos do relatório
+		lineageTag: 4f395e5c-fe91-4548-ae5c-d8b90a1cdffe
+
+	/// Subtitulo da pagina 3.
+	measure 'Txt P3 Causa' =
+			VAR tab = ADDCOLUMNS(ALL(dim_vendedores[nome]), "@e", [Estornos])
+			VAR principal = TOPN(2, FILTER(tab, NOT ISBLANK([@e])), [@e], ASC)
+			VAR mesesDesc = CALCULATETABLE(ADDCOLUMNS(VALUES(dim_data[ano_mes]), "@d", [Desconto %]), ALL(dim_data))
+			VAR pico = TOPN(1, FILTER(mesesDesc, NOT ISBLANK([@d])), [@d], DESC)
+			RETURN CONCATENATEX(principal, dim_vendedores[nome], " e ", [@e], ASC) & " respondem por " & FORMAT(DIVIDE(SUMX(principal, [@e]), [Estornos]), "0%", "pt-BR") & " dos estornos. O desconto % teve pico de " & FORMAT(MAXX(pico, [@d]), "0.0%", "pt-BR") & " em " & MAXX(pico, dim_data[ano_mes]) & "."
+		displayFolder: 6 Textos do relatório
+		lineageTag: 4cdd5a20-a728-4b45-ba66-02389aac5d7a
+
+	/// Contexto da pagina 3.
+	measure 'Txt P3 Contexto' = "Período completo · estorno = linhas com venda líquida negativa (devolução, cancelamento ou ajuste: a confirmar) · desconto % sobre a venda bruta · dados até " & FORMAT([Dados até], "dd/mm/yyyy", "pt-BR")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 0c83c497-e845-4659-a874-459d72efeedd
+
+	/// Proxima acao da pagina 3.
+	measure 'Txt P3 Ação' =
+			VAR meses = FILTER(CALCULATETABLE(ADDCOLUMNS(VALUES(dim_data[ano_mes]), "@e", [Estorno %]), ALL(dim_data)), NOT ISBLANK([@e]) && [@e] > [Limiar de Estorno %])
+			RETURN "Regra: Estorno % do mês acima do limiar (média + 1 desvio-padrão dos meses) → auditar as notas do mês. Disparou em " & COUNTROWS(meses) & " meses. Responsável: a definir pela empresa."
+		displayFolder: 6 Textos do relatório
+		lineageTag: 3539e719-b23c-402c-8833-8ee918a619b8
+
+	/// Variacao em R$ para o mes anterior tratando ausencia como zero (vendedor novo ou parado entra na ponte). Soma = variacao do mes.
+	measure 'Variação Ponte' =
+			VAR atual = [Vendas Líquidas]
+			VAR ant = [Vendas Mês Anterior]
+			RETURN IF(NOT ISBLANK(atual) || NOT ISBLANK(ant), atual - COALESCE(ant, 0))
+		formatString: "R$"\ #,0.00
+		displayFolder: 6 Textos do relatório
+		lineageTag: 4f9989d2-a999-4648-8b77-fd31eea88f66
+
+	/// Valor do cartao de vendas em texto (locale pt-BR).
+	measure 'Txt KPI Vendas' = "R$ " & FORMAT([Vendas Líquidas] / 1000000, "0.00", "pt-BR") & " mi"
+		displayFolder: 6 Textos do relatório
+		lineageTag: bfb92d59-2d39-48a0-8645-ca082445dc9a
+
+	/// Valor do cartao de documentos em texto (locale pt-BR).
+	measure 'Txt KPI Documentos' = FORMAT([Documentos], "#,0", "pt-BR")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 81d9b8f2-e6ca-4b04-8aca-fd9be2e91d7c
+
+	/// Valor do cartao de ticket medio em texto (locale pt-BR).
+	measure 'Txt KPI Ticket' = "R$ " & FORMAT([Ticket Médio], "#,0", "pt-BR")
+		displayFolder: 6 Textos do relatório
+		lineageTag: eab2d4ad-9a7e-4110-a36d-93d9aa753062
+
+	/// Valor do cartao de estorno % em texto (locale pt-BR).
+	measure 'Txt KPI Estorno' = FORMAT([Estorno %], "0.0%", "pt-BR")
+		displayFolder: 6 Textos do relatório
+		lineageTag: a49a64a8-f868-4414-8586-8acf0dd1eb62
+
+	/// Referencia (mes anterior) do cartao de vendas.
+	measure 'Txt Ref Vendas Mês' = IF([Variação % vs Mês Anterior] >= 0, "▲ ", "▼ ") & FORMAT(ABS([Variação % vs Mês Anterior]), "0.0%", "pt-BR") & " vs mês anterior"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 497c4174-3c8d-443d-be2b-72671727ce2d
+
+	/// Referencia (ano anterior) do cartao de vendas.
+	measure 'Txt Ref Vendas Ano' = IF([Variação % vs Ano Anterior] >= 0, "▲ ", "▼ ") & FORMAT(ABS([Variação % vs Ano Anterior]), "0.0%", "pt-BR") & " vs ano anterior"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 5340eed8-38ee-4e8e-987b-3c25a41c0eea
+
+	/// Verde = melhor, vermelho = pior (vendas vs ano anterior).
+	measure 'Cor Ref Vendas Ano' = IF([Variação % vs Ano Anterior] >= 0, "#3DD68C", "#FF6B6B")
+		displayFolder: 6 Textos do relatório
+		lineageTag: cf68694e-8370-4b49-b514-0f12c79c8391
+
+	/// Vendedores que fazem 80% da venda.
+	measure 'Txt KPI Pareto Vendedores' = [Vendedores para 80%] & " de " & [Vendedores Ativos] & " (" & FORMAT(DIVIDE([Vendedores para 80%], [Vendedores Ativos]), "0%", "pt-BR") & ")"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 3852706c-9d6c-4288-81b6-8230180542ec
+
+	/// Produtos que fazem 80% da venda.
+	measure 'Txt KPI Pareto Produtos' = [Produtos para 80%] & " de " & FORMAT([Produtos Ativos], "#,0", "pt-BR") & " (" & FORMAT(DIVIDE([Produtos para 80%], [Produtos Ativos]), "0%", "pt-BR") & ")"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 51e70acc-407d-46a7-8e15-0fb8f1ac6e4d
+
+	/// Clientes que fazem 80% da venda.
+	measure 'Txt KPI Pareto Clientes' = [Clientes para 80%] & " de " & FORMAT([Clientes Ativos], "#,0", "pt-BR") & " (" & FORMAT(DIVIDE([Clientes para 80%], [Clientes Ativos]), "0%", "pt-BR") & ")"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 8b8e4979-7bea-43ce-9c69-4b2dfdea55bd
+
+	/// Estornos totais em texto.
+	measure 'Txt KPI Estornos' = "-R$ " & FORMAT(-[Estornos] / 1000000, "0.0", "pt-BR") & " mi"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 75dadc1f-8163-45be-be92-96e0146aba23
+
+	/// Referencia do cartao de estornos.
+	measure 'Txt Ref Estornos' = "equivale a " & FORMAT(DIVIDE(-[Estornos], [Vendas Líquidas]), "0.0%", "pt-BR") & " da venda líquida"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 98d90316-cdeb-4ec3-aa22-e2cfa20075f3
+
+	/// Linhas de estorno em texto.
+	measure 'Txt KPI Estorno Linhas' = FORMAT([Linhas de Estorno], "#,0", "pt-BR") & " linhas"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 9579182b-7c9a-4563-b175-994106b38d98
+
+	/// Referencia do cartao de linhas de estorno.
+	measure 'Txt Ref Estorno Linhas' = "de " & FORMAT(COUNTROWS(fato_vendas), "#,0", "pt-BR") & " linhas (" & FORMAT(DIVIDE([Linhas de Estorno], COUNTROWS(fato_vendas)), "0.0%", "pt-BR") & ")"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 8b4ebe2a-9187-4e6f-947b-f49e80d71aa1
+
+	/// Desconto % em texto.
+	measure 'Txt KPI Desconto' = FORMAT([Desconto %], "0.00%", "pt-BR")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 82e21bfd-93b5-49f3-9ffc-5815d01ede87
+
+	/// Referencia do cartao de desconto.
+	measure 'Txt Ref Desconto' = "R$ " & FORMAT([Descontos], "#,0", "pt-BR") & " em " & FORMAT(CALCULATE(COUNTROWS(fato_vendas), fato_vendas[desconto] <> 0), "#,0", "pt-BR") & " linhas"
+		displayFolder: 6 Textos do relatório
+		lineageTag: e6993dd4-f39b-424d-8781-41483cade62a
+
+	/// Referencia do cartao de estorno % total.
+	measure 'Txt Ref Estorno Pct' = "limiar de alerta: " & FORMAT([Limiar de Estorno %], "0.0%", "pt-BR") & " (média + 1 desvio-padrão)"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 1fc552ab-e069-4300-a768-d9af189073db
+
+	/// Limiar de estorno so onde ha venda (evita meses vazios no grafico).
+	measure 'Limiar Estorno Linha' = IF(NOT ISBLANK([Vendas Líquidas]), [Limiar de Estorno %])
+		formatString: 0.0%
+		displayFolder: 6 Textos do relatório
+		lineageTag: 5a427ee9-4abb-40cc-a97b-c6f02b1a32c7
+
 	column cod_venda
 		dataType: decimal
 		isHidden
