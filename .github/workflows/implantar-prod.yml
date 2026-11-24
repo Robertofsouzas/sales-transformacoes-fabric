@@ -17,11 +17,11 @@ on:
         required: true
         type: string
       modo:
-        description: "simular (só Report) ou implantar"
+        description: "verificar (confere login, acesso e itens, sem implantar) ou implantar"
         required: true
         type: choice
-        options: [simular, implantar]
-        default: simular
+        options: [verificar, implantar]
+        default: verificar
 
 permissions:
   id-token: write   # pedir o token OIDC ao GitHub
