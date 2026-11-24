@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="100%" role="img" aria-labelledby="t d">
+  <title id="t">Estrutura do repositório sales-transformacoes-fabric / Repository layout</title>
+  <desc id="d">Pastas do repositório: Environment, Processing, Storage e Visualization (itens do Fabric) e seeds, tools e docs (apoio), com os itens de cada uma.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1620"/><stop offset="1" stop-color="#0f2230"/></linearGradient>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+  </defs>
+  <style>
+    text{font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
+    .eyebrow{font-size:12px;letter-spacing:.22em;fill:#4cc9f0;font-weight:700}
+    .title{font-size:30px;fill:#fff;font-weight:700}
+    .sub{font-size:14px;fill:#8fa6b8}
+    .fold{font-size:19px;fill:#fff;font-weight:700}
+    .pt{font-size:12.5px;fill:#d7e3ee}
+    .en{font-size:11.5px;fill:#8fa6b8;font-style:italic}
+    .grp{font-size:10.5px;letter-spacing:.16em;font-weight:700}
+    .item{font-family:Consolas,"Cascadia Code",Menlo,monospace;font-size:12px;fill:#d7e3ee}
+    .leg{font-family:Consolas,"Cascadia Code",Menlo,monospace;font-size:12px;fill:#6f8597}
+    .tag{font-size:10.5px;fill:#8fa6b8}
+  </style>
+  <rect width="1280" height="640" rx="20" fill="url(#bg)"/>
+
+  <text class="eyebrow" x="40" y="52">ESTRUTURA DO REPOSITÓRIO · REPOSITORY LAYOUT</text>
+  <text class="title" x="40" y="90">Cada pasta é uma camada do projeto</text>
+  <text class="sub" x="40" y="116">Os itens do Fabric são versionados como definições (código), nunca como dados. · Fabric items are versioned as definitions, never as data.</text>
+
+  <!-- Environment -->
+  <g filter="url(#sh)"><rect x="40" y="144" width="288" height="300" rx="16" fill="#14192f" stroke="#34397a"/></g>
+  <rect x="40" y="144" width="288" height="6" rx="3" fill="#9b87ff"/>
+  <path d="M60 174h22l6 6h26a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H60a4 4 0 0 1-4-4v-24a4 4 0 0 1 4-4z" fill="#9b87ff"/>
+  <text class="fold" x="132" y="198">Environment/</text>
+  <text class="pt" x="60" y="236">Configuração por ambiente</text>
+  <text class="en" x="60" y="254">Per-environment configuration</text>
+  <text class="grp" x="60" y="290" fill="#9b87ff">VARIABLE LIBRARY</text>
+  <text class="item" x="60" y="312">vl_solucoes_fabric</text>
+  <text class="tag" x="60" y="330">dev · feature · prd</text>
+  <text class="grp" x="60" y="366" fill="#9b87ff">ENVIRONMENT</text>
+  <text class="item" x="60" y="388">env_solucoes_fabric</text>
+
+  <!-- Processing -->
+  <g filter="url(#sh)"><rect x="344" y="144" width="288" height="300" rx="16" fill="#112b3b" stroke="#1f5a73"/></g>
+  <rect x="344" y="144" width="288" height="6" rx="3" fill="#4cc9f0"/>
+  <path d="M364 174h22l6 6h26a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H364a4 4 0 0 1-4-4v-24a4 4 0 0 1 4-4z" fill="#4cc9f0"/>
+  <text class="fold" x="436" y="198">Processing/</text>
+  <text class="pt" x="364" y="236">Cargas e transformações</text>
+  <text class="en" x="364" y="254">Loads and transformations</text>
+  <text class="grp" x="364" y="290" fill="#4cc9f0">PIPELINES</text>
+  <text class="item" x="364" y="312">pl_master → pl_Staging →</text>
+  <text class="item" x="364" y="330">pl_bronze → pl_silver → pl_gold</text>
+  <text class="grp" x="364" y="366" fill="#4cc9f0">NOTEBOOKS</text>
+  <text class="item" x="364" y="388">nb_bronze · nb_silver_* · nb_gold</text>
+  <text class="item" x="364" y="406">nb_gold_checks · nb_functions</text>
+  <text class="item" x="364" y="424">nb_delta_optimization</text>
+
+  <!-- Storage -->
+  <g filter="url(#sh)"><rect x="648" y="144" width="288" height="300" rx="16" fill="#13222e" stroke="#8a6a1f"/></g>
+  <rect x="648" y="144" width="288" height="6" rx="3" fill="#f6cd62"/>
+  <path d="M668 174h22l6 6h26a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H668a4 4 0 0 1-4-4v-24a4 4 0 0 1 4-4z" fill="#f6cd62"/>
+  <text class="fold" x="740" y="198">Storage/</text>
+  <text class="pt" x="668" y="236">Onde os dados moram</text>
+  <text class="en" x="668" y="254">Where the data lives</text>
+  <text class="grp" x="668" y="290" fill="#f6cd62">LAKEHOUSES</text>
+  <text class="item" x="668" y="312">lh_bronze · lh_silver · lh_gold</text>
+  <text class="grp" x="668" y="348" fill="#f6cd62">SEMANTIC MODEL</text>
+  <text class="item" x="668" y="370">sm_vendas_directlake</text>
+  <text class="tag" x="668" y="388">Direct Lake · 80 medidas / measures</text>
+  <text class="grp" x="668" y="420" fill="#f6cd62">SQL DATABASE</text>
+  <text class="item" x="780" y="420">db_control</text>
+
+  <!-- Visualization -->
+  <g filter="url(#sh)"><rect x="952" y="144" width="288" height="300" rx="16" fill="#2a1a1c" stroke="#7a3a32"/></g>
+  <rect x="952" y="144" width="288" height="6" rx="3" fill="#ff8a6e"/>
+  <path d="M972 174h22l6 6h26a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H972a4 4 0 0 1-4-4v-24a4 4 0 0 1 4-4z" fill="#ff8a6e"/>
+  <text class="fold" x="1044" y="198">Visualization/</text>
+  <text class="pt" x="972" y="236">Relatório que apoia decisões</text>
+  <text class="en" x="972" y="254">Decision-ready report</text>
+  <text class="grp" x="972" y="290" fill="#ff8a6e">REPORTS · PBIR</text>
+  <text class="item" x="972" y="312">rpt_vendas</text>
+  <text class="tag" x="972" y="336">1 · Resultado do mês / Monthly result</text>
+  <text class="tag" x="972" y="356">2 · Concentração / Concentration</text>
+  <text class="tag" x="972" y="376">3 · Estornos e desconto / Reversals</text>
+
+  <!-- apoio -->
+  <text class="eyebrow" x="40" y="486" fill="#8fa6b8">APOIO · SUPPORTING FILES</text>
+  <g filter="url(#sh)">
+    <rect x="40" y="500" width="392" height="100" rx="14" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="444" y="500" width="392" height="100" rx="14" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="848" y="500" width="392" height="100" rx="14" fill="#112b3b" stroke="#1f5a73"/>
+  </g>
+  <rect x="40" y="500" width="4" height="100" rx="2" fill="#3ddc97"/>
+  <text class="fold" x="62" y="532">seeds/</text>
+  <text class="item" x="62" y="558">PipelineControl.seed.sql</text>
+  <text class="tag" x="62" y="580">MERGE idempotente · idempotent control table seed</text>
+  <rect x="444" y="500" width="4" height="100" rx="2" fill="#aebfd0"/>
+  <text class="fold" x="466" y="532">tools/</text>
+  <text class="item" x="466" y="558">run_seed.py · test_run_seed.py</text>
+  <text class="tag" x="466" y="580">roda e testa o seed · runs and tests the seed</text>
+  <rect x="848" y="500" width="4" height="100" rx="2" fill="#e3e6ff"/>
+  <text class="fold" x="870" y="532">docs/img/</text>
+  <text class="item" x="870" y="558">ilustrações e prints</text>
+  <text class="tag" x="870" y="580">diagrams and report screenshots</text>
+</svg>
