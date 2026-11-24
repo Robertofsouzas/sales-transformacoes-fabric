@@ -15,7 +15,7 @@ Load configuration does not come from a spreadsheet: it comes from a control tab
 | Semantic model | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tables, **80 DAX measures** | `Storage/Semantic Models` |
 | Report | `rpt_vendas`: 3 pages that answer business questions | `Visualization/Reports` |
 | Environments | dev, feature and prod with Git, pull requests and a deployment pipeline | see below |
-| CI/CD automation | automatic pull request validation and approved deployments | in progress (phase D) |
+| CI/CD automation | automatic pull request validation and approved deployments, with no stored password | `.github/workflows`, `tools/` |
 
 ## 1. Data architecture
 
@@ -124,7 +124,42 @@ The code is the same in all three environments; what changes is the **configurat
 
 ## 8. CI/CD automation
 
-In progress (phase D): automatic validation of every pull request and a deployment button on GitHub, with approval and a secretless service identity.
+<p align="center">
+  <img src="docs/img/cicd-fluxo.svg" alt="CI/CD: the pull request goes through validar-pr and the main branch rule; the deploy button goes through prod environment approval, passwordless OIDC login and the deployment pipeline (diagram labels in Portuguese and English)" width="100%">
+</p>
+
+The automation has **two gates**: nothing reaches `main` without a green check, and nothing reaches prod without approval. Git and the deployment pipeline (section 6) remain the path; GitHub Actions only automates and records it.
+
+**CI: validation on every pull request** (`.github/workflows/validar-pr.yml`)
+
+| Rule | What it checks | Why |
+|---|---|---|
+| R1 | secrets in text (password, client secret, token, account key, SAS, private key) | the repository is public |
+| R2 | valid JSON (`.json`, `.pbir`, `.pbism`, `.platform`) | broken JSON stops Fabric from updating from Git |
+| R3 | zeroed `workspaceId` in pipelines | a hardcoded ID would point prod at dev |
+| R4 | GUIDs only where allowed (exceptions justified in code) | the same risk as R3, in any file |
+| R5 | the seed keeps `$(SourceDatabase)` | the real database name never enters the repository |
+| R6 | measure named like a column, and reserved words in `VAR` | two TMDL mistakes that already bit us |
+
+The workflow runs with read-only permission and **no secrets**, triggers on `pull_request` (never `pull_request_target`) and uses actions pinned to a commit SHA. The `main` ruleset requires a pull request and a green `validar-pr` check, and blocks deletion and force pushes. This was proven with a test PR containing broken JSON: the check went red and the merge was blocked.
+
+**CD: deploy button** (`.github/workflows/implantar-prod.yml`)
+
+1. **Actions → implantar-prod → Run workflow**, with `itens` (`name:Type`), `motivo` (reason) and `modo` (mode).
+2. The GitHub `prod` environment requires the reviewer's **approval** and only accepts the `main` branch.
+3. The job signs in to Azure through **OIDC**, with no stored password: Entra trusts the GitHub token of that repository and environment. The app has no client secret or certificate.
+4. `tools/implantar.py` calls the `pl_deploy_sales` pipeline API (Dev to Prod) for the requested items only, with a **note** carrying the reason, the `main` commit, who triggered it and who approved.
+
+Two modes: `verificar` (verify) checks login, access, pipeline and items **without deploying**; `implantar` (deploy) performs the deployment. The deployment is made by a service principal, and `Dataflow` is left out because the API does not accept it for that kind of identity.
+
+**What practice taught us** (reflected in tests or rules):
+
+- The deployment **dry run** (`validateOnly`) **does not work** in this account: the API answered `InvalidOptions`. That is why the safe mode is `verificar`.
+- A role granted only to a **group** did not apply to the service principal: it needed the role directly (Admin on the pipeline, Contributor on both workspaces).
+- The federated credential uses GitHub's **immutable** subject format (with the numeric owner and repository IDs), which stops a recreated repository with the same name from inheriting access.
+- The tracking address returned by the API may point to another host; the script tracks by operation ID, and the token only travels to `api.fabric.microsoft.com`.
+- Whoever triggers and whoever approves is, today, the **same person** (solo project). The approval is a confirmation gate, not a second review.
+- A **semantic model** was deployed by the robot with a real difference (a measure description): owner, binding to the prod lakehouse and DAX stayed correct. The proof covers a metadata change; after every model deployment, check owner, binding, refresh and DAX.
 
 ## 9. Creating a new environment
 
@@ -153,8 +188,9 @@ Environment/     Environment and Variable Library
 Processing/      Notebooks, pipelines and dataflow
 Storage/         Lakehouses, semantic model and control database
 Visualization/   Power BI report (PBIR)
+.github/         Workflows: validar-pr (CI) and implantar-prod (CD)
 seeds/           db_control seed
-tools/           Seed script and test
+tools/           Seed, repository checker and deploy script (with tests)
 docs/img/        Diagrams and report screenshots
 ```
 
@@ -168,5 +204,7 @@ Legacy items from the original project (`sm_solucoes-fabric_*`, `nb_semantic_mod
 - [Variable libraries](https://learn.microsoft.com/fabric/cicd/variable-library/variable-library-overview)
 - [Medallion architecture](https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture)
 - [Direct Lake](https://learn.microsoft.com/fabric/fundamentals/direct-lake-overview) and [M parameters with deployment pipelines](https://learn.microsoft.com/fabric/fundamentals/direct-lake-develop#use-m-parameters-with-deployment-pipelines)
+- [Workload identity federation for GitHub Actions](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-create-trust) and [immutable subjects](https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects)
+- [Deploy Stage Content (API)](https://learn.microsoft.com/rest/api/fabric/core/deployment-pipelines/deploy-stage-content) and [automating deployment pipelines](https://learn.microsoft.com/fabric/cicd/deployment-pipelines/pipeline-automation-fabric)
 - [Star schema in Power BI](https://learn.microsoft.com/power-bi/guidance/star-schema)
 - [PBIR report format](https://learn.microsoft.com/power-bi/developer/projects/projects-report)

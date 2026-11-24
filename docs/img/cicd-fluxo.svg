@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 600" width="100%" role="img" aria-labelledby="t d">
+  <title id="t">Automação de CI/CD / CI/CD automation</title>
+  <desc id="d">Dois portões: a CI valida todo pull request (regras R1 a R6, testes e regra da main) e o botão de deploy exige aprovação no ambiente prod, login sem senha por OIDC e o pipeline de implantação, com nota de proveniência.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1620"/><stop offset="1" stop-color="#0f2230"/></linearGradient>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+    <marker id="arCy" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#4cc9f0"/></marker>
+    <marker id="arGo" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#f6cd62"/></marker>
+  </defs>
+  <style>
+    text{font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
+    .eyebrow{font-size:12px;letter-spacing:.22em;fill:#4cc9f0;font-weight:700}
+    .title{font-size:30px;fill:#fff;font-weight:700}
+    .sub{font-size:14px;fill:#8fa6b8}
+    .lane{font-size:13px;font-weight:800;letter-spacing:.16em}
+    .lanes{font-size:11px;fill:#8fa6b8}
+    .rowt{font-size:14px;fill:#fff;font-weight:700}
+    .rows{font-size:11.5px;fill:#8fa6b8}
+    .how{font-size:12px;fill:#d7e3ee}
+    .mono{font-family:Consolas,"Cascadia Code",Menlo,monospace;font-size:12px;fill:#fff;font-weight:700}
+    .flowc{stroke-dasharray:6 6;animation:dash 1.4s linear infinite}
+    @keyframes dash{to{stroke-dashoffset:-24}}
+    @media (prefers-reduced-motion:reduce){.flowc{animation:none}}
+  </style>
+  <rect width="1280" height="600" rx="20" fill="url(#bg)"/>
+
+  <text class="eyebrow" x="40" y="52">AUTOMAÇÃO DE CI/CD · CI/CD AUTOMATION</text>
+  <text class="title" x="40" y="90">Dois portões: validar antes de mesclar, aprovar antes de implantar</text>
+  <text class="sub" x="40" y="116">Nada chega à main sem o check verde, e nada chega ao prod sem aprovação. · Validate before merge, approve before deploy.</text>
+
+  <!-- Faixa CI -->
+  <text class="lane" x="40" y="156" fill="#4cc9f0">CI · A CADA PULL REQUEST</text>
+  <text class="lanes" x="290" y="156">roda sozinha, sem nenhum segredo · runs on its own, no secrets</text>
+  <g filter="url(#sh)">
+    <rect x="40" y="170" width="270" height="130" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="350" y="170" width="270" height="130" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="660" y="170" width="270" height="130" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+    <rect x="970" y="170" width="270" height="130" rx="12" fill="#112b3b" stroke="#1f5a73"/>
+  </g>
+  <rect x="40" y="170" width="270" height="5" rx="2.5" fill="#4cc9f0"/>
+  <rect x="350" y="170" width="270" height="5" rx="2.5" fill="#4cc9f0"/>
+  <rect x="660" y="170" width="270" height="5" rx="2.5" fill="#4cc9f0"/>
+  <rect x="970" y="170" width="270" height="5" rx="2.5" fill="#4cc9f0"/>
+  <path class="flowc" d="M312 235 H346" stroke="#4cc9f0" stroke-width="2.2" fill="none" marker-end="url(#arCy)"/>
+  <path class="flowc" d="M622 235 H656" stroke="#4cc9f0" stroke-width="2.2" fill="none" marker-end="url(#arCy)"/>
+  <path class="flowc" d="M932 235 H966" stroke="#4cc9f0" stroke-width="2.2" fill="none" marker-end="url(#arCy)"/>
+
+  <text class="rowt" x="58" y="204">1 · Pull request</text>
+  <text class="how" x="58" y="228">Toda mudança entra por PR,</text>
+  <text class="how" x="58" y="246">nunca direto na main.</text>
+  <text class="rows" x="58" y="272">Every change goes through a PR.</text>
+
+  <text class="rowt" x="368" y="204">2 · Workflow validar-pr</text>
+  <text class="how" x="368" y="228">6 regras (R1 a R6) + 40 testes:</text>
+  <text class="how" x="368" y="246">segredos, JSON, IDs fixos, seed.</text>
+  <text class="rows" x="368" y="272">Secrets, JSON, hardcoded IDs, seed.</text>
+
+  <text class="rowt" x="678" y="204">3 · Regra da main</text>
+  <text class="how" x="678" y="228">Exige PR e o check verde;</text>
+  <text class="how" x="678" y="246">sem force push nem exclusão.</text>
+  <text class="rows" x="678" y="272">Red check = merge blocked.</text>
+
+  <text class="rowt" x="988" y="204">4 · Merge na main</text>
+  <text class="how" x="988" y="228">Só entra o que passou.</text>
+  <text class="how" x="988" y="246">Ações fixadas por SHA.</text>
+  <text class="rows" x="988" y="272">Only what passed gets in.</text>
+
+  <!-- Faixa CD -->
+  <text class="lane" x="40" y="352" fill="#f6cd62">CD · BOTÃO, NUNCA AUTOMÁTICO</text>
+  <text class="lanes" x="352" y="352">workflow implantar-prod · you press it, you approve it</text>
+  <g filter="url(#sh)">
+    <rect x="40" y="366" width="270" height="150" rx="12" fill="#13222e" stroke="#8a6a1f"/>
+    <rect x="350" y="366" width="270" height="150" rx="12" fill="#2a2412" stroke="#d49a1e"/>
+    <rect x="660" y="366" width="270" height="150" rx="12" fill="#13222e" stroke="#8a6a1f"/>
+    <rect x="970" y="366" width="270" height="150" rx="12" fill="#13222e" stroke="#8a6a1f"/>
+  </g>
+  <rect x="40" y="366" width="270" height="5" rx="2.5" fill="#f6cd62"/>
+  <rect x="350" y="366" width="270" height="5" rx="2.5" fill="#f6cd62"/>
+  <rect x="660" y="366" width="270" height="5" rx="2.5" fill="#f6cd62"/>
+  <rect x="970" y="366" width="270" height="5" rx="2.5" fill="#f6cd62"/>
+  <path class="flowc" d="M312 441 H346" stroke="#f6cd62" stroke-width="2.2" fill="none" marker-end="url(#arGo)"/>
+  <path class="flowc" d="M622 441 H656" stroke="#f6cd62" stroke-width="2.2" fill="none" marker-end="url(#arGo)"/>
+  <path class="flowc" d="M932 441 H966" stroke="#f6cd62" stroke-width="2.2" fill="none" marker-end="url(#arGo)"/>
+
+  <text class="rowt" x="58" y="400">1 · Botão (Run workflow)</text>
+  <text class="how" x="58" y="424">Itens, motivo e modo:</text>
+  <text class="mono" x="58" y="446">verificar | implantar</text>
+  <text class="rows" x="58" y="472">verificar não toca no prod.</text>
+  <text class="rows" x="58" y="488">verify never touches prod.</text>
+
+  <text class="rowt" x="368" y="400">2 · Ambiente prod</text>
+  <text class="how" x="368" y="424">Revisor obrigatório e só a</text>
+  <text class="how" x="368" y="442">branch main. É o portão humano.</text>
+  <text class="rows" x="368" y="472">Quem dispara e quem aprova hoje</text>
+  <text class="rows" x="368" y="488">é a mesma pessoa (projeto solo).</text>
+
+  <text class="rowt" x="678" y="400">3 · Login sem senha (OIDC)</text>
+  <text class="how" x="678" y="424">O Entra confia no token do GitHub</text>
+  <text class="how" x="678" y="442">deste repositório e ambiente.</text>
+  <text class="rows" x="678" y="472">Nenhum client secret guardado.</text>
+  <text class="rows" x="678" y="488">No stored password.</text>
+
+  <text class="rowt" x="988" y="400">4 · pl_deploy_sales</text>
+  <text class="how" x="988" y="424">Dev → Prod, só os itens pedidos,</text>
+  <text class="how" x="988" y="442">com nota: commit e aprovador.</text>
+  <text class="rows" x="988" y="472">Feito por entidade de serviço;</text>
+  <text class="rows" x="988" y="488">Dataflow fica de fora.</text>
+
+  <!-- Rodapé -->
+  <rect x="40" y="540" width="1200" height="40" rx="10" fill="#13222e" stroke="#1b303f"/>
+  <rect x="40" y="540" width="4" height="40" rx="2" fill="#3ddc97"/>
+  <text class="how" x="60" y="565">Depois de implantar um modelo semântico: conferir dono, apontamento ao lakehouse do prod, refresh e DAX.</text>
+</svg>
