@@ -1,0 +1,39 @@
+{
+  "name": "tema_vendas",
+  "dataColors": [
+    "#4DA3FF",
+    "#6F80A0",
+    "#3DD68C",
+    "#FF6B6B",
+    "#B58CFF",
+    "#FFC857",
+    "#5FD1D6",
+    "#FF9F6B"
+  ],
+  "background": "#0E1522",
+  "foreground": "#F4F7FB",
+  "tableAccent": "#4DA3FF",
+  "textClasses": {
+    "label": {
+      "fontFace": "Segoe UI",
+      "color": "#A9B6CB",
+      "fontSize": 10
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "color": "#F4F7FB",
+      "fontSize": 12
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "*": [
+          {
+            "fontFamily": "Segoe UI"
+          }
+        ]
+      }
+    }
+  }
+}
