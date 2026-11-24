@@ -15,7 +15,7 @@ A configuração das cargas não vem de planilha: vem de uma tabela de controle 
 | Modelo semântico | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tabelas, **80 medidas** em DAX | `Storage/Semantic Models` |
 | Relatório | `rpt_vendas`: 3 páginas que respondem perguntas de negócio | `Visualization/Reports` |
 | Ambientes | dev, feature e prod com Git, pull request e pipeline de implantação | veja abaixo |
-| Automação de CI/CD | validação automática dos PRs e deploy com aprovação | em construção (fase D) |
+| Automação de CI/CD | validação automática dos PRs e deploy com aprovação, sem senha guardada | `.github/workflows`, `tools/` |
 
 ## 1. Arquitetura de dados
 
@@ -124,7 +124,42 @@ O código é o mesmo nos três ambientes; o que muda é a **configuração**, qu
 
 ## 8. Automação de CI/CD
 
-Em construção (fase D): validação automática de todo pull request e um botão de implantação no GitHub, com aprovação e identidade de serviço sem senha guardada.
+<p align="center">
+  <img src="docs/img/cicd-fluxo.svg" alt="CI/CD: o pull request passa pelo validar-pr e pela regra da main; o botão de deploy passa pela aprovação do ambiente prod, login OIDC sem senha e o pipeline de implantação (rótulos em português e inglês)" width="100%">
+</p>
+
+A automação tem **dois portões**: nada entra na `main` sem o check verde, e nada chega ao prod sem aprovação. O Git e o pipeline de implantação (seção 6) continuam sendo o caminho; o GitHub Actions só automatiza e registra esse caminho.
+
+**CI: validação a cada pull request** (`.github/workflows/validar-pr.yml`)
+
+| Regra | O que verifica | Por quê |
+|---|---|---|
+| R1 | segredos no texto (senha, client secret, token, chave de conta, SAS, chave privada) | o repositório é público |
+| R2 | JSON válido (`.json`, `.pbir`, `.pbism`, `.platform`) | um JSON quebrado impede o Fabric de atualizar a partir do Git |
+| R3 | `workspaceId` zerado nos pipelines | um ID fixo apontaria o prod para o dev |
+| R4 | GUID só onde é permitido (exceções justificadas no código) | o mesmo risco do R3, em qualquer arquivo |
+| R5 | o seed mantém `$(SourceDatabase)` | o nome real do banco nunca entra no repositório |
+| R6 | medida com nome de coluna e `VAR` com palavra reservada | dois erros de TMDL que já nos pegaram |
+
+O workflow roda com permissão só de leitura e **sem nenhum segredo**, dispara em `pull_request` (nunca `pull_request_target`) e usa ações fixadas por SHA de commit. A regra da `main` (ruleset) exige pull request e o check `validar-pr` verde, e bloqueia exclusão e force push. Isso foi provado com um PR de teste com um JSON quebrado: o check ficou vermelho e o merge, bloqueado.
+
+**CD: botão de deploy** (`.github/workflows/implantar-prod.yml`)
+
+1. **Actions → implantar-prod → Run workflow**, com `itens` (`nome:Tipo`), `motivo` e `modo`.
+2. O ambiente `prod` do GitHub exige a **aprovação** do revisor e só aceita a branch `main`.
+3. O job entra no Azure por **OIDC**, sem senha guardada: o Entra confia no token do GitHub daquele repositório e ambiente. O app não tem client secret nem certificado.
+4. `tools/implantar.py` chama a API do pipeline `pl_deploy_sales` (Dev para Prod) só para os itens pedidos, com uma **nota** que traz o motivo, o commit da `main`, quem disparou e quem aprovou.
+
+Dois modos: `verificar` confere login, acesso, pipeline e itens **sem implantar**; `implantar` faz o deploy. O deploy é feito por uma entidade de serviço, e o `Dataflow` fica de fora porque a API não o aceita para esse tipo de identidade.
+
+**O que a prática ensinou** (e está nos testes ou nas regras):
+
+- A simulação (`validateOnly`) do deploy **não funciona** nesta conta: a API respondeu `InvalidOptions`. Por isso o modo seguro é `verificar`.
+- Papel dado só a um **grupo** não valia para a entidade de serviço: ela precisou do papel direto (Admin no pipeline, Contributor nos dois workspaces).
+- A credencial federada usa o formato **imutável** do subject do GitHub (com os IDs numéricos do dono e do repositório), que evita que um repositório recriado com o mesmo nome herde o acesso.
+- O endereço de acompanhamento que a API devolve pode apontar para outro host; o script acompanha pelo ID da operação, e o token só viaja para `api.fabric.microsoft.com`.
+- Quem dispara e quem aprova hoje é a **mesma pessoa** (projeto solo). A aprovação é um portão de confirmação, não uma segunda revisão.
+- Um **modelo semântico** foi implantado pelo robô com uma diferença real (descrição de uma medida): dono, apontamento ao lakehouse do prod e DAX seguiram corretos. A prova cobre mudança de metadado; depois de cada deploy de modelo, conferir dono, apontamento, refresh e DAX.
 
 ## 9. Como criar um ambiente novo
 
@@ -153,8 +188,9 @@ Environment/     Environment e Variable Library
 Processing/      Notebooks, pipelines e dataflow
 Storage/         Lakehouses, modelo semântico e banco de controle
 Visualization/   Relatório Power BI (PBIR)
+.github/         Workflows: validar-pr (CI) e implantar-prod (CD)
 seeds/           Seed do db_control
-tools/           Script e teste do seed
+tools/           Seed, verificador do repositório e script de deploy (com testes)
 docs/img/        Ilustrações e prints do relatório
 ```
 
@@ -168,5 +204,7 @@ Itens legados do projeto original (`sm_solucoes-fabric_*`, `nb_semantic_models`,
 - [Variable libraries](https://learn.microsoft.com/fabric/cicd/variable-library/variable-library-overview)
 - [Arquitetura medalhão](https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture)
 - [Direct Lake](https://learn.microsoft.com/fabric/fundamentals/direct-lake-overview) e [parâmetros M com pipelines de implantação](https://learn.microsoft.com/fabric/fundamentals/direct-lake-develop#use-m-parameters-with-deployment-pipelines)
+- [Federação de identidade para o GitHub Actions](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-create-trust) e [subjects imutáveis](https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects)
+- [Deploy Stage Content (API)](https://learn.microsoft.com/rest/api/fabric/core/deployment-pipelines/deploy-stage-content) e [automação de pipelines de implantação](https://learn.microsoft.com/fabric/cicd/deployment-pipelines/pipeline-automation-fabric)
 - [Esquema em estrela no Power BI](https://learn.microsoft.com/power-bi/guidance/star-schema)
 - [Formato PBIR do relatório](https://learn.microsoft.com/power-bi/developer/projects/projects-report)
