@@ -1,0 +1,91 @@
+# CD: botão de deploy Dev -> Prod pelo pipeline de implantação pl_deploy_sales.
+# - Só dispara à mão (workflow_dispatch). Nunca automático.
+# - O job roda no ambiente "prod": exige a aprovação do revisor e só aceita a branch main.
+# - Login sem senha (OIDC): o Entra confia no token do GitHub deste ambiente.
+# - As entradas passam por variáveis de ambiente, nunca coladas no script (evita injeção de comando).
+name: implantar-prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      itens:
+        description: "Itens no formato nome:Tipo, separados por vírgula (ex.: nb_gold_checks:Notebook,rpt_vendas:Report)"
+        required: true
+        type: string
+      motivo:
+        description: "Por que este deploy (vai na nota do pipeline)"
+        required: true
+        type: string
+      modo:
+        description: "simular (só Report) ou implantar"
+        required: true
+        type: choice
+        options: [simular, implantar]
+        default: simular
+
+permissions:
+  id-token: write   # pedir o token OIDC ao GitHub
+  contents: read
+  actions: read     # ler quem aprovou a execução
+
+concurrency:
+  group: implantar-prod
+  cancel-in-progress: false
+
+jobs:
+  implantar:
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 30
+    steps:
+      - name: Baixar o código da main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.11"
+
+      - name: Testes do script de deploy
+        run: python -m unittest tools.test_implantar
+
+      - name: Login no Azure (OIDC, sem senha)
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Token do Fabric (mascarado no log)
+        shell: bash
+        run: |
+          token=$(az account get-access-token --resource https://api.fabric.microsoft.com --query accessToken -o tsv)
+          echo "::add-mask::$token"
+          echo "FABRIC_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Quem aprovou esta execução
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          aprovador=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/approvals" --jq '.[0].user.login' 2>/dev/null || true)
+          echo "APROVADOR=${aprovador:-n/d}" >> "$GITHUB_ENV"
+
+      - name: Deploy ${{ inputs.modo }}
+        shell: bash
+        env:
+          ITENS: ${{ inputs.itens }}
+          MOTIVO: ${{ inputs.motivo }}
+          MODO: ${{ inputs.modo }}
+        run: |
+          {
+            echo "### Deploy Dev → Prod ($MODO)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          set +e
+          python tools/implantar.py --itens "$ITENS" --motivo "$MOTIVO" --modo "$MODO" | tee -a "$GITHUB_STEP_SUMMARY"
+          codigo=${PIPESTATUS[0]}
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          exit "$codigo"
