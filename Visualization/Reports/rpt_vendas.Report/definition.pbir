@@ -3,7 +3,7 @@
   "version": "4.0",
   "datasetReference": {
     "byPath": {
-      "path": "../Storage/Semantic Models/sm_vendas_directlake.SemanticModel"
+      "path": "../../../Storage/Semantic Models/sm_vendas_directlake.SemanticModel"
     }
   }
 }
