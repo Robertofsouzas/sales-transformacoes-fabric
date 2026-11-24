@@ -272,22 +272,22 @@ table fato_vendas
 		lineageTag: 207f1147-2911-42e3-8aef-eaaa77e41032
 
 	/// Verde = melhor, vermelho = pior (vendas vs mes anterior).
-	measure 'Cor Ref Vendas' = IF([Variação % vs Mês Anterior] >= 0, "#3DD68C", "#FF6B6B")
+	measure 'Cor Ref Vendas' = IF([Variação % vs Mês Anterior] >= 0, "#14794A", "#C42B2B")
 		displayFolder: 6 Textos do relatório
 		lineageTag: 2ef6cae8-127d-498a-a0aa-49d54316bf18
 
 	/// Verde = melhor, vermelho = pior (documentos vs ano anterior).
-	measure 'Cor Ref Documentos' = IF([Variação Documentos % vs Ano Anterior] >= 0, "#3DD68C", "#FF6B6B")
+	measure 'Cor Ref Documentos' = IF([Variação Documentos % vs Ano Anterior] >= 0, "#14794A", "#C42B2B")
 		displayFolder: 6 Textos do relatório
 		lineageTag: e6a327f5-b2b8-4644-90ec-47c0dc96ca4e
 
 	/// Verde = melhor, vermelho = pior (ticket vs ano anterior).
-	measure 'Cor Ref Ticket' = IF([Variação Ticket % vs Ano Anterior] >= 0, "#3DD68C", "#FF6B6B")
+	measure 'Cor Ref Ticket' = IF([Variação Ticket % vs Ano Anterior] >= 0, "#14794A", "#C42B2B")
 		displayFolder: 6 Textos do relatório
 		lineageTag: 55b73a4b-2146-49a7-a8e0-66acf744ca06
 
 	/// Estorno maior = pior (vermelho).
-	measure 'Cor Ref Estorno' = IF([Estorno %] > [Estorno % Mês Anterior], "#FF6B6B", "#3DD68C")
+	measure 'Cor Ref Estorno' = IF([Estorno %] > [Estorno % Mês Anterior], "#C42B2B", "#14794A")
 		displayFolder: 6 Textos do relatório
 		lineageTag: 493ea609-0565-4e45-adc3-e860f3015363
 
@@ -398,7 +398,7 @@ table fato_vendas
 		lineageTag: 5340eed8-38ee-4e8e-987b-3c25a41c0eea
 
 	/// Verde = melhor, vermelho = pior (vendas vs ano anterior).
-	measure 'Cor Ref Vendas Ano' = IF([Variação % vs Ano Anterior] >= 0, "#3DD68C", "#FF6B6B")
+	measure 'Cor Ref Vendas Ano' = IF([Variação % vs Ano Anterior] >= 0, "#14794A", "#C42B2B")
 		displayFolder: 6 Textos do relatório
 		lineageTag: cf68694e-8370-4b49-b514-0f12c79c8391
 
@@ -448,7 +448,7 @@ table fato_vendas
 		lineageTag: e6993dd4-f39b-424d-8781-41483cade62a
 
 	/// Referencia do cartao de estorno % total.
-	measure 'Txt Ref Estorno Pct' = "limiar de alerta: " & FORMAT([Limiar de Estorno %], "0.0%", "pt-BR") & " (média + 1 desvio-padrão)"
+	measure 'Txt Ref Estorno Pct' = "limiar de alerta: " & FORMAT([Limiar de Estorno %], "0.0%", "pt-BR")
 		displayFolder: 6 Textos do relatório
 		lineageTag: 1fc552ab-e069-4300-a768-d9af189073db
 
@@ -457,6 +457,65 @@ table fato_vendas
 		formatString: 0.0%
 		displayFolder: 6 Textos do relatório
 		lineageTag: 5a427ee9-4abb-40cc-a97b-c6f02b1a32c7
+
+	/// Chip de contexto do topo da pagina.
+	measure 'Txt Chip' = IF(ISBLANK(SELECTEDVALUE(dim_data[ano_mes])), "Período completo", [Txt Mês]) & " · dados até " & FORMAT([Dados até], "dd/mm/yyyy", "pt-BR")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 1b7a5a88-482a-448f-9685-ab4311432e18
+
+	/// Segunda regra da pagina 1: estorno do mes contra o limiar.
+	measure 'Txt P1 Ação 2' =
+			IF([Estorno %] > [Limiar de Estorno %],
+			    "Regra disparada: o Estorno % do mês (" & FORMAT([Estorno %], "0.0%", "pt-BR") & ") passou do limiar de " & FORMAT([Limiar de Estorno %], "0.0%", "pt-BR") & ". Auditar as notas do mês. Responsável: a definir pela empresa.",
+			    "Regra não disparada: o Estorno % do mês (" & FORMAT([Estorno %], "0.0%", "pt-BR") & ") está abaixo do limiar de " & FORMAT([Limiar de Estorno %], "0.0%", "pt-BR") & " (média + 1 desvio-padrão).")
+		displayFolder: 6 Textos do relatório
+		lineageTag: d5e3fcb0-cbe2-441a-a1f1-1336ad0f07c7
+
+	/// Segunda regra da pagina 2: concentracao de produtos.
+	measure 'Txt P2 Ação 2' =
+			VAR pct = DIVIDE([Produtos para 80%], [Produtos Ativos])
+			RETURN IF(pct < 0.1, "Regra disparada (limiar de exemplo: 10%): " & FORMAT(pct, "0%", "pt-BR") & " dos produtos fazem 80% da venda. Proteger estoque e preço dos itens-chave. Responsável: a definir pela empresa.",
+			    "Regra não disparada: a venda está distribuída por mais de 10% dos produtos (limiar de exemplo).")
+		displayFolder: 6 Textos do relatório
+		lineageTag: 9e3cdbd3-2355-484d-84d0-c8c7aab89830
+
+	/// Segunda regra da pagina 3: desconto.
+	measure 'Txt P3 Ação 2' =
+			VAR tab = ADDCOLUMNS(ALL(dim_vendedores[nome]), "@d", [Descontos])
+			VAR principal = TOPN(1, FILTER(tab, NOT ISBLANK([@d])), [@d], DESC)
+			VAR mesesDesc = CALCULATETABLE(ADDCOLUMNS(VALUES(dim_data[ano_mes]), "@p", [Desconto %]), ALL(dim_data))
+			VAR pico = MAXX(FILTER(mesesDesc, NOT ISBLANK([@p])), [@p])
+			RETURN IF(pico > 0.01, "Regra disparada (limiar de exemplo: 1%): o desconto % chegou a " & FORMAT(pico, "0.0%", "pt-BR") & " em um mês. " & MAXX(principal, dim_vendedores[nome]) & " concentra " & FORMAT(DIVIDE(MAXX(principal, [@d]), [Descontos]), "0%", "pt-BR") & " dos descontos. Responsável: a definir pela empresa.",
+			    "Regra não disparada: o desconto % ficou abaixo de 1% em todos os meses (limiar de exemplo).")
+		displayFolder: 6 Textos do relatório
+		lineageTag: eb2e204c-c3ad-40a9-a72c-c037e197e6c1
+
+	/// Referencia do cartao de concentracao: peso do maior (o maior vendedor).
+	measure 'Txt Ref Pareto Vendedores' =
+			VAR tab = ADDCOLUMNS(ALL(dim_vendedores[cod_vendedor]), "@v", [Vendas Líquidas])
+			RETURN "maior vendedor: " & FORMAT(DIVIDE(MAXX(tab, [@v]), [Vendas Líquidas]), "0%", "pt-BR") & " da venda"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 5e846979-f502-4615-8502-dc509b8fb003
+
+	/// Referencia do cartao de concentracao: peso do maior (o maior produto).
+	measure 'Txt Ref Pareto Produtos' =
+			VAR tab = ADDCOLUMNS(ALL(dim_produtos[cod_produto]), "@v", [Vendas Líquidas])
+			RETURN "maior produto: " & FORMAT(DIVIDE(MAXX(tab, [@v]), [Vendas Líquidas]), "0%", "pt-BR") & " da venda"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 7a7c63d8-e156-4cab-848e-a99668376fa4
+
+	/// Referencia do cartao de concentracao: peso do maior (o maior cliente).
+	measure 'Txt Ref Pareto Clientes' =
+			VAR tab = ADDCOLUMNS(ALL(dim_clientes[cod_cliente]), "@v", [Vendas Líquidas])
+			RETURN "maior cliente: " & FORMAT(DIVIDE(MAXX(tab, [@v]), [Vendas Líquidas]), "0%", "pt-BR") & " da venda"
+		displayFolder: 6 Textos do relatório
+		lineageTag: 0ce2d214-a5da-4a4e-aca3-938717db31da
+
+	/// Valor estornado em modulo (positivo): quanto das vendas foi desfeito. Usado nos graficos para as barras crescerem para a direita.
+	measure 'Estornos Valor' = -[Estornos]
+		formatString: "R$"\ #,0.00
+		displayFolder: 4 Estornos
+		lineageTag: 34d71921-c360-44e7-887e-78ce223fada2
 
 	column cod_venda
 		dataType: decimal
