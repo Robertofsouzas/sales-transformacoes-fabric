@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "pareto_vendedores",
   "position": {
-    "x": 24,
-    "y": 272,
-    "width": 600,
-    "height": 300,
+    "x": 96,
+    "y": 292,
+    "width": 500,
+    "height": 348,
     "z": 1,
     "tabOrder": 0
   },
@@ -96,7 +96,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -105,7 +105,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "9D"
+                  "Value": "8D"
                 }
               }
             },
@@ -127,7 +127,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -185,7 +185,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Pareto de vendedores: venda líquida (barras) e % acumulado (linha)'"
+                  "Value": "'Pareto de vendedores: venda líquida e % acumulado'"
                 }
               }
             },
@@ -194,7 +194,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -211,6 +211,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'left'"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Segoe UI Semibold'"
                 }
               }
             }
@@ -232,7 +239,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -254,7 +261,25 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
                 }
               }
             }

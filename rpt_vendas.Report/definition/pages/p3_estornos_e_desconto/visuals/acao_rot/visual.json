@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "acao_rot",
   "position": {
-    "x": 842,
-    "y": 516,
-    "width": 402,
-    "height": 30,
+    "x": 688,
+    "y": 488,
+    "width": 552,
+    "height": 32,
     "z": 3,
     "tabOrder": 0
   },
@@ -19,10 +19,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "PRÓXIMA AÇÃO · REGRA CALCULADA DOS DADOS",
+                    "value": "PRÓXIMA AÇÃO · REGRAS CALCULADAS DOS DADOS",
                     "textStyle": {
                       "fontSize": "9pt",
-                      "color": "#4DA3FF",
+                      "color": "#FF8A6E",
                       "fontWeight": "bold"
                     }
                   }

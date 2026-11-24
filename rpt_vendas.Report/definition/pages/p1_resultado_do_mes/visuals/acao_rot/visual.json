@@ -3,9 +3,9 @@
   "name": "acao_rot",
   "position": {
     "x": 848,
-    "y": 278,
-    "width": 396,
-    "height": 30,
+    "y": 300,
+    "width": 392,
+    "height": 32,
     "z": 3,
     "tabOrder": 0
   },
@@ -19,10 +19,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "PRÓXIMA AÇÃO · REGRA CALCULADA DOS DADOS",
+                    "value": "PRÓXIMA AÇÃO · REGRAS CALCULADAS DOS DADOS",
                     "textStyle": {
                       "fontSize": "9pt",
-                      "color": "#4DA3FF",
+                      "color": "#FF8A6E",
                       "fontWeight": "bold"
                     }
                   }

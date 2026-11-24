@@ -2,9 +2,9 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "nota",
   "position": {
-    "x": 24,
-    "y": 664,
-    "width": 1232,
+    "x": 96,
+    "y": 656,
+    "width": 1160,
     "height": 40,
     "z": 3,
     "tabOrder": 0
@@ -22,7 +22,7 @@
                     "value": "Pareto: barras ordenadas pela venda líquida e linha do percentual acumulado. Períodos completos; venda líquida já abate os estornos. Dados fictícios.",
                     "textStyle": {
                       "fontSize": "9pt",
-                      "color": "#A9B6CB",
+                      "color": "#5E5E70",
                       "fontWeight": "normal"
                     }
                   }

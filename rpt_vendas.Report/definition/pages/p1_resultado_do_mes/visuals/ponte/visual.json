@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "ponte",
   "position": {
-    "x": 24,
-    "y": 272,
-    "width": 800,
-    "height": 380,
+    "x": 96,
+    "y": 292,
+    "width": 720,
+    "height": 348,
     "z": 1,
     "tabOrder": 0
   },
@@ -78,7 +78,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -109,7 +109,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -160,7 +160,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#3DD68C'"
+                      "Value": "'#1F9D63'"
                     }
                   }
                 }
@@ -171,7 +171,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FF6B6B'"
+                      "Value": "'#E0443E'"
                     }
                   }
                 }
@@ -182,7 +182,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#4DA3FF'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -206,7 +206,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F4F7FB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -246,7 +246,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -263,6 +263,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'left'"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Segoe UI Semibold'"
                 }
               }
             }
@@ -284,7 +291,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -306,7 +313,25 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
                 }
               }
             }

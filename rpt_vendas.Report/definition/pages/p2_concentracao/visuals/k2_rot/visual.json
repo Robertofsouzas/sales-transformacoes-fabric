@@ -2,9 +2,9 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "k2_rot",
   "position": {
-    "x": 450,
-    "y": 142,
-    "width": 380,
+    "x": 1062,
+    "y": 56,
+    "width": 182,
     "height": 30,
     "z": 3,
     "tabOrder": 0
@@ -19,10 +19,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "PRODUTOS QUE FAZEM 80% DA VENDA",
+                    "value": "PRODUTOS QUE FAZEM 80%",
                     "textStyle": {
-                      "fontSize": "9pt",
-                      "color": "#A9B6CB",
+                      "fontSize": "8pt",
+                      "color": "#5E5E70",
                       "fontWeight": "normal"
                     }
                   }

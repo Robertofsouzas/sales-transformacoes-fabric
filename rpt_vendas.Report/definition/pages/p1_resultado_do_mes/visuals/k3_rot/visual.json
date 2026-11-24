@@ -2,9 +2,9 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "k3_rot",
   "position": {
-    "x": 658,
-    "y": 142,
-    "width": 276,
+    "x": 844,
+    "y": 172,
+    "width": 182,
     "height": 30,
     "z": 3,
     "tabOrder": 0
@@ -21,8 +21,8 @@
                   {
                     "value": "TICKET MÉDIO",
                     "textStyle": {
-                      "fontSize": "9pt",
-                      "color": "#A9B6CB",
+                      "fontSize": "8pt",
+                      "color": "#5E5E70",
                       "fontWeight": "normal"
                     }
                   }

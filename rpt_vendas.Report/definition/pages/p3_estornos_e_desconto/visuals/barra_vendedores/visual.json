@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "barra_vendedores",
   "position": {
-    "x": 830,
-    "y": 272,
-    "width": 426,
-    "height": 226,
+    "x": 672,
+    "y": 292,
+    "width": 584,
+    "height": 176,
     "z": 1,
     "tabOrder": 0
   },
@@ -42,11 +42,11 @@
                       "Entity": "fato_vendas"
                     }
                   },
-                  "Property": "Estornos"
+                  "Property": "Estornos Valor"
                 }
               },
-              "queryRef": "fato_vendas.Estornos",
-              "nativeQueryRef": "Estornos"
+              "queryRef": "fato_vendas.Estornos Valor",
+              "nativeQueryRef": "Estornos Valor"
             }
           ]
         }
@@ -61,10 +61,10 @@
                     "Entity": "fato_vendas"
                   }
                 },
-                "Property": "Estornos"
+                "Property": "Estornos Valor"
               }
             },
-            "direction": "Ascending"
+            "direction": "Descending"
           }
         ]
       }
@@ -78,7 +78,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -109,7 +109,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -167,7 +167,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Estornos por vendedor (R$)'"
+                  "Value": "'Valor estornado por vendedor (R$)'"
                 }
               }
             },
@@ -176,7 +176,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -193,6 +193,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'left'"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Segoe UI Semibold'"
                 }
               }
             }
@@ -214,7 +221,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -236,7 +243,25 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
                 }
               }
             }

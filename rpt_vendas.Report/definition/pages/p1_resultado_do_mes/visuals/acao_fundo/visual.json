@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "acao_fundo",
   "position": {
-    "x": 836,
-    "y": 272,
-    "width": 420,
-    "height": 380,
+    "x": 832,
+    "y": 292,
+    "width": 424,
+    "height": 348,
     "z": 0,
     "tabOrder": 0
   },
@@ -22,7 +22,7 @@
                     "value": " ",
                     "textStyle": {
                       "fontSize": "8pt",
-                      "color": "#172236"
+                      "color": "#1C1838"
                     }
                   }
                 ]
@@ -61,7 +61,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#1C1838'"
                     }
                   }
                 }
@@ -83,7 +83,25 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1C1838'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "16D"
                 }
               }
             }

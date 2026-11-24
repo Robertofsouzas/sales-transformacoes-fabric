@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "top_produtos",
   "position": {
-    "x": 640,
-    "y": 272,
-    "width": 616,
-    "height": 300,
+    "x": 608,
+    "y": 292,
+    "width": 340,
+    "height": 348,
     "z": 1,
     "tabOrder": 0
   },
@@ -58,7 +58,7 @@
               },
               "queryRef": "fato_vendas.Venda Acumulada % Produtos",
               "nativeQueryRef": "Venda Acumulada % Produtos",
-              "displayName": "% acumulado"
+              "displayName": "% acum."
             }
           ]
         }
@@ -90,7 +90,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#5E5E70'"
                     }
                   }
                 }
@@ -101,7 +101,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -125,7 +125,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F4F7FB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -136,7 +136,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -147,7 +147,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F4F7FB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -158,7 +158,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -169,7 +169,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F4F7FB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -180,7 +180,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -218,7 +218,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -249,7 +249,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Produtos do maior para o menor (% acumulado da venda líquida)'"
+                  "Value": "'Produtos do maior para o menor'"
                 }
               }
             },
@@ -258,7 +258,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#A9B6CB'"
+                      "Value": "'#1B1A2E'"
                     }
                   }
                 }
@@ -275,6 +275,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'left'"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Segoe UI Semibold'"
                 }
               }
             }
@@ -296,7 +303,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172236'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -318,7 +325,25 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
                 }
               }
             }
