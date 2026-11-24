@@ -1,0 +1,34 @@
+# CI: valida todo pull request para a main.
+# - Disparo pull_request (nunca pull_request_target): o código do PR roda sem
+#   acesso a segredos do repositório.
+# - Permissão mínima: só leitura do conteúdo.
+# - Ações fixadas por commit SHA (a tag pode ser movida; o SHA não).
+name: validar-pr
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validar-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar o código do PR
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.11"
+
+      - name: Testes do verificador
+        run: python -m unittest tools.test_validar_repo -v
+
+      - name: Verificar o repositório (R1 a R6)
+        run: python tools/validar_repo.py .
