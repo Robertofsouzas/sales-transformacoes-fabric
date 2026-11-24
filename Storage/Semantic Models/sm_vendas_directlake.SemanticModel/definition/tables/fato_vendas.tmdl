@@ -19,7 +19,7 @@ table fato_vendas
 		displayFolder: 1 Vendas
 		lineageTag: 6cb5f7c7-0aa7-4a97-bd35-8eaef7aebcc2
 
-	/// Quantidade vendida.
+	/// Quantidade vendida: soma da coluna quantidade nas linhas de venda.
 	measure 'Quantidade Vendida' = SUM(fato_vendas[quantidade])
 		formatString: #,0.00
 		displayFolder: 1 Vendas
