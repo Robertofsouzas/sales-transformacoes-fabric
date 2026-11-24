@@ -51,7 +51,7 @@
   <text class="rows" x="58" y="272">Every change goes through a PR.</text>
 
   <text class="rowt" x="368" y="204">2 · Workflow validar-pr</text>
-  <text class="how" x="368" y="228">6 regras (R1 a R6) + 40 testes:</text>
+  <text class="how" x="368" y="228">6 regras (R1 a R6) + 43 testes:</text>
   <text class="how" x="368" y="246">segredos, JSON, IDs fixos, seed.</text>
   <text class="rows" x="368" y="272">Secrets, JSON, hardcoded IDs, seed.</text>
 

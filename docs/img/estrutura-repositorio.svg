@@ -63,7 +63,7 @@
   <text class="item" x="668" y="312">lh_bronze · lh_silver · lh_gold</text>
   <text class="grp" x="668" y="348" fill="#f6cd62">SEMANTIC MODEL</text>
   <text class="item" x="668" y="370">sm_vendas_directlake</text>
-  <text class="tag" x="668" y="388">Direct Lake · 80 medidas / measures</text>
+  <text class="tag" x="668" y="388">Direct Lake · 81 medidas / measures</text>
   <text class="grp" x="668" y="420" fill="#f6cd62">SQL DATABASE</text>
   <text class="item" x="780" y="420">db_control</text>
 

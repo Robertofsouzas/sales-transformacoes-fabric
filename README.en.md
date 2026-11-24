@@ -12,7 +12,7 @@ Load configuration does not come from a spreadsheet: it comes from a control tab
 |---|---|---|
 | Ingestion and layers | Staging, Bronze, Silver and **Gold** (star schema) | `Processing/`, `Storage/Lakehouses` |
 | Data quality | `nb_gold_checks`: 28 checks (keys, reconciliation with Silver, orphan sales, calendar) | `Processing/Notebooks` |
-| Semantic model | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tables, **80 DAX measures** | `Storage/Semantic Models` |
+| Semantic model | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tables, **81 DAX measures** | `Storage/Semantic Models` |
 | Report | `rpt_vendas`: 3 pages that answer business questions | `Visualization/Reports` |
 | Environments | dev, feature and prod with Git, pull requests and a deployment pipeline | see below |
 | CI/CD automation | automatic pull request validation and approved deployments, with no stored password | `.github/workflows`, `tools/` |
@@ -63,14 +63,14 @@ The pipelines iterate over `db_control` with a `ForEach`; the new row is picked 
 ## 4. Semantic model
 
 <p align="center">
-  <img src="docs/img/modelo-semantico.svg" alt="Star schema semantic model: fato_vendas in the center, five dimensions, 80 measures in six folders, read from lh_gold in Direct Lake on OneLake and consumed by rpt_vendas" width="100%">
+  <img src="docs/img/modelo-semantico.svg" alt="Star schema semantic model: fato_vendas in the center, five dimensions, 81 measures in six folders, read from lh_gold in Direct Lake on OneLake and consumed by rpt_vendas" width="100%">
 </p>
 
 `sm_vendas_directlake` is the **meaning** layer between the lakehouse and the report: it defines how tables relate and holds the **calculations** (measures), so a number is the same in every report.
 
 - **Direct Lake on OneLake:** the model reads the Delta files in `lh_gold` directly, **without copying** the data. A "refresh" only updates the reference to the table version (*framing*) and takes seconds. It is the mode Microsoft recommends for new models, and it does not fall back to DirectQuery.
 - **Star schema:** `fato_vendas` in the center and five dimensions with single-direction **one-to-many** relationships. `dim_data` is the model's date table.
-- **80 measures in 6 folders:** sales, comparison with the previous month and year, context, reversals, concentration (Pareto) and **report text**. The conclusion titles in the report are DAX measures, so they update themselves when the data changes.
+- **81 measures in 6 folders:** sales, comparison with the previous month and year, context, reversals, concentration (Pareto) and **report text**. The conclusion titles in the report are DAX measures, so they update themselves when the data changes.
 - **Good practices:** technical keys and `data_carga` hidden, explicit measures only, month and weekday sorted by number, pt-BR culture.
 - **Verified:** the net sales measure matches the Silver total, and every environment was checked with DAX queries after each deployment.
 

@@ -12,7 +12,7 @@ A configuração das cargas não vem de planilha: vem de uma tabela de controle 
 |---|---|---|
 | Ingestão e camadas | Staging, Bronze, Silver e **Gold** (modelo em estrela) | `Processing/`, `Storage/Lakehouses` |
 | Qualidade | `nb_gold_checks`: 28 verificações (chaves, reconciliação com a Silver, vendas órfãs, calendário) | `Processing/Notebooks` |
-| Modelo semântico | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tabelas, **80 medidas** em DAX | `Storage/Semantic Models` |
+| Modelo semântico | `sm_vendas_directlake`: Direct Lake on OneLake, 6 tabelas, **81 medidas** em DAX | `Storage/Semantic Models` |
 | Relatório | `rpt_vendas`: 3 páginas que respondem perguntas de negócio | `Visualization/Reports` |
 | Ambientes | dev, feature e prod com Git, pull request e pipeline de implantação | veja abaixo |
 | Automação de CI/CD | validação automática dos PRs e deploy com aprovação, sem senha guardada | `.github/workflows`, `tools/` |
@@ -63,14 +63,14 @@ Os pipelines percorrem o `db_control` com um `ForEach`; a linha nova passa a ser
 ## 4. Modelo semântico
 
 <p align="center">
-  <img src="docs/img/modelo-semantico.svg" alt="Modelo semântico em estrela: fato_vendas no centro, cinco dimensões, 80 medidas em seis pastas, lido do lh_gold em Direct Lake on OneLake e consumido pelo rpt_vendas" width="100%">
+  <img src="docs/img/modelo-semantico.svg" alt="Modelo semântico em estrela: fato_vendas no centro, cinco dimensões, 81 medidas em seis pastas, lido do lh_gold em Direct Lake on OneLake e consumido pelo rpt_vendas" width="100%">
 </p>
 
 O `sm_vendas_directlake` é a camada de **significado** entre o lakehouse e o relatório: diz como as tabelas se ligam e guarda as **contas** (medidas), para que um número saia igual em qualquer relatório.
 
 - **Direct Lake on OneLake:** o modelo lê os arquivos Delta do `lh_gold` direto, **sem copiar** os dados. O "refresh" só atualiza a referência à versão da tabela (*framing*) e leva segundos. É o modo que a Microsoft recomenda para modelos novos, e não cai para DirectQuery.
 - **Esquema em estrela:** `fato_vendas` no centro e cinco dimensões com relacionamentos **um-para-muitos** em sentido único. A `dim_data` é a tabela de datas do modelo.
-- **80 medidas em 6 pastas:** vendas, comparação com mês e ano anterior, contexto, estornos, concentração (Pareto) e **textos do relatório**. Os títulos que concluem no relatório são medidas DAX: mudam sozinhos quando os dados mudam.
+- **81 medidas em 6 pastas:** vendas, comparação com mês e ano anterior, contexto, estornos, concentração (Pareto) e **textos do relatório**. Os títulos que concluem no relatório são medidas DAX: mudam sozinhos quando os dados mudam.
 - **Boas práticas:** chaves técnicas e `data_carga` ocultas, só medidas explícitas, mês e dia da semana ordenados pelo número, cultura pt-BR.
 - **Verificado:** a medida Vendas Líquidas bate com a soma da Silver, e cada ambiente foi conferido por consultas DAX depois de cada implantação.
 
