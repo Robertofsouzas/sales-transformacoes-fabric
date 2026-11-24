@@ -43,6 +43,12 @@ table fato_vendas
 		displayFolder: 1 Vendas
 		lineageTag: 4257a6e0-83d6-4fd4-b781-ae6084eb13d4
 
+	/// Desconto medio por documento: descontos concedidos divididos pelos documentos distintos.
+	measure 'Desconto Médio' = DIVIDE([Descontos], [Documentos])
+		formatString: "R$"\ #,0.00
+		displayFolder: 1 Vendas
+		lineageTag: 60f876ad-69be-4d15-afab-b83deaa77d5d
+
 	/// Vendas liquidas no mes anterior ao periodo selecionado.
 	measure 'Vendas Mês Anterior' = CALCULATE([Vendas Líquidas], DATEADD(dim_data[data], -1, MONTH))
 		formatString: "R$"\ #,0.00
@@ -443,7 +449,7 @@ table fato_vendas
 		lineageTag: 82e21bfd-93b5-49f3-9ffc-5815d01ede87
 
 	/// Referencia do cartao de desconto.
-	measure 'Txt Ref Desconto' = "R$ " & FORMAT([Descontos], "#,0", "pt-BR") & " em " & FORMAT(CALCULATE(COUNTROWS(fato_vendas), fato_vendas[desconto] <> 0), "#,0", "pt-BR") & " linhas"
+	measure 'Txt Ref Desconto' = "R$ " & FORMAT([Desconto Médio], "#,0.00", "pt-BR") & " por documento"
 		displayFolder: 6 Textos do relatório
 		lineageTag: e6993dd4-f39b-424d-8781-41483cade62a
 
